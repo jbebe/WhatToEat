@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Azure.Data.Tables;
+using Microsoft.Extensions.Configuration;
 using WhatToEat.Types;
 
 namespace WhatToEat.Services
@@ -18,9 +19,10 @@ namespace WhatToEat.Services
 
     private Lazy<Task<List<RestaurantData>>> LazyRestaurants { get; }
 
-    public StorageService()
+    public StorageService(IConfiguration config)
     {
-      Client = new TableServiceClient(Environment.GetEnvironmentVariable("WHATTOEAT_STORAGE_CONNSTR"));
+      Client = new TableServiceClient(config.GetValue<string>("AppConfig:StorageConnectionString"));
+      Client.CreateTableIfNotExists("whattoeat");
       Table = Client.GetTableClient("whattoeat");
       LazyRestaurants = new Lazy<Task<List<RestaurantData>>>(GetRestaurantsAsync);
     }
@@ -59,7 +61,7 @@ namespace WhatToEat.Services
     }
 
     public async Task CreateRestaurantAsync(RestaurantData restaurant) =>
-      await Table.AddEntityAsync(restaurant);
+      await Table.UpsertEntityAsync(restaurant, TableUpdateMode.Replace);
 
     private async Task<List<RestaurantData>> GetRestaurantsAsync()
     {

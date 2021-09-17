@@ -7,6 +7,8 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using WhatToEat.Helpers;
 using WhatToEat.Types;
 
@@ -33,6 +35,10 @@ namespace WhatToEat.Services
     public EventService EventService { get; set; }
 
     public IHttpClientFactory HttpClient { get; }
+    
+    public IConfiguration Config { get; }
+    
+    public IHttpContextAccessor HttpContextAccessor { get; }
 
     #endregion
 
@@ -52,12 +58,16 @@ namespace WhatToEat.Services
       ILocalStorageService localStorage,
       StorageService storageService,
       EventService eventService,
-      IHttpClientFactory httpClient)
+      IHttpClientFactory httpClient,
+      IConfiguration config,
+      IHttpContextAccessor httpContextAccessor)
     {
       LocalStorage = localStorage;
       StorageService = storageService;
       EventService = eventService;
       HttpClient = httpClient;
+      Config = config;
+      HttpContextAccessor = httpContextAccessor;
       EventService.OnMessage += msg =>
       {
         switch (msg.Type)
@@ -102,7 +112,8 @@ namespace WhatToEat.Services
     {
       var client = HttpClient.CreateClient();
       AdUserData adUserData;
-      var response = await client.GetAsync(Environment.GetEnvironmentVariable("ADUSER_INFO_URL"));
+      client.BaseAddress = new Uri((HttpContextAccessor.HttpContext.Request.IsHttps ? "https://" : "http://") + HttpContextAccessor.HttpContext.Request.Host.Value);
+      var response = await client.GetAsync(Config.GetValue<string>("AppConfig:AdUserInfoPath"));
       if (response.StatusCode == HttpStatusCode.OK)
       {
         adUserData = (await response.Content.ReadFromJsonAsync<AdUserData[]>())!.First();

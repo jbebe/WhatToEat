@@ -1,17 +1,14 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MudBlazor.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Blazored.LocalStorage;
 using WhatToEat.Services;
+using WhatToEat.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace WhatToEat
 {
@@ -20,6 +17,7 @@ namespace WhatToEat
     public Startup(IConfiguration configuration)
     {
       Configuration = configuration;
+      DevelopmentHelper.SetupTestEnvironmentIfNeeded(Configuration);
     }
 
     public IConfiguration Configuration { get; }
@@ -34,6 +32,7 @@ namespace WhatToEat
       services.AddMudServices();
       services.AddBlazoredLocalStorage();
       services.AddSingleton<EventService>();
+      services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
       services.AddScoped<StorageService>();
       services.AddScoped<UserService>();
       services.Configure<RazorPagesOptions>(options => options.RootDirectory = "/Views/Pages");

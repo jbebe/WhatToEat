@@ -45,8 +45,10 @@ namespace WhatToEat.Types
 
     public RestaurantData(){}
 
-    public RestaurantData(string restaurantId): base(PrimaryKey, restaurantId)
+    public RestaurantData(string restaurantId, string name, PaymentMethod paymentMethod): base(PrimaryKey, restaurantId)
     {
+      Name = name;
+      PaymentMethod = paymentMethod;
     }
 
     public string GetId() => RowKey;
