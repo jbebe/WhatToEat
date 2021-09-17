@@ -1,0 +1,10 @@
+﻿@using Microsoft.AspNetCore.Http
+@using System.Net
+@inject IHttpContextAccessor _httpContextAccessor;
+
+@code {
+    protected override void OnInitialized()
+    {
+        _httpContextAccessor.HttpContext!.Response.StatusCode = (int)HttpStatusCode.NotFound;
+    }
+}
