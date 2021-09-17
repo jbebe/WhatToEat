@@ -1,0 +1,92 @@
+@using System.Timers
+@implements IDisposable
+
+<MudCard Class="ma-4">
+  <MudCardContent>
+    <strong>Online users:</strong>
+    <MudList>
+      @foreach (var (_, userData) in OnlineUsers)
+      {
+        <MudListItem Class="pa-0" Text="@(userData.Name)"/>
+      }
+    </MudList>
+  </MudCardContent>
+</MudCard>
+
+@code {
+
+  private const int OfflineMultiplier = 4;
+  private const int IntervalSec = 5;
+
+  class CountdownUserData : UserData
+  {
+    public int Countdown { get; set; }
+
+    public CountdownUserData(UserData userData, int countdown): base(userData.GetUserId(), userData.Name)
+    {
+      Countdown = countdown;
+    }
+  }
+
+  private Dictionary<string, CountdownUserData> OnlineUsers { get; } = new();
+
+  private Timer Timer { get; } = new(TimeSpan.FromSeconds(IntervalSec).TotalMilliseconds);
+
+  [Inject]
+  protected UserService UserService { get; set; }
+
+  protected override void OnInitialized()
+  {
+    UserService.OnBroadcastPresenceChanged -= OnBroadcastPresenceChangedAsync;
+    UserService.OnBroadcastPresenceChanged += OnBroadcastPresenceChangedAsync;
+
+    UserService.SendPresence();
+    Timer.Elapsed -= RemotePresenceUpdater;
+    Timer.Elapsed += RemotePresenceUpdater;
+    Timer.Start();
+  }
+
+  private void RemotePresenceUpdater(object _, ElapsedEventArgs __)
+  {
+    Console.WriteLine(__.SignalTime);
+    var removable = new List<string>();
+    foreach (var userId in OnlineUsers.Keys)
+    {
+      OnlineUsers[userId].Countdown -= 1;
+      if (OnlineUsers[userId].Countdown <= 0)
+        removable.Add(userId);
+    }
+    foreach (var userId in removable)
+    {
+      OnlineUsers.Remove(userId);
+    }
+    if (removable.Any())
+    {
+      InvokeAsync(StateHasChanged);
+    }
+    UserService.SendPresence();
+  }
+
+  private async Task OnBroadcastPresenceChangedAsync(PresenceChanged message)
+  {
+    var userId = message.UserId;
+    if (OnlineUsers.ContainsKey(userId))
+    {
+      OnlineUsers[userId].Countdown = OfflineMultiplier;
+    }
+    else
+    {
+      await UserService.UpdateUserListAsync();
+      var user = UserService.Users[userId];
+      OnlineUsers.Add(userId, new CountdownUserData(user, OfflineMultiplier));
+      await InvokeAsync(StateHasChanged);
+    }
+  }
+
+  public void Dispose()
+  {
+    UserService.OnBroadcastPresenceChanged -= OnBroadcastPresenceChangedAsync;
+    Timer?.Dispose();
+  }
+
+}

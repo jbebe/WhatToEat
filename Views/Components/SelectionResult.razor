@@ -1,0 +1,58 @@
+<MudCard Class="ma-4">
+  <MudCardContent>
+    <strong>Selection result:</strong>
+    <MudList>
+      @foreach (var user in Choices)
+      {
+        <MudPaper>
+          <MudListItem>
+            @(user.Key.Name):
+            <MudList>
+              @foreach (var choice in user.Value)
+              {
+                <MudListItem Class="pa-0" Text="@(choice.Name)"/>
+              }
+            </MudList>
+          </MudListItem>
+        </MudPaper>
+      }
+    </MudList>
+  </MudCardContent>
+</MudCard>
+
+@code {
+
+  private Dictionary<UserData, List<RestaurantData>> Choices { get; set; } = new();
+
+  [Inject]
+  protected StorageService StorageService { get; set; }
+
+  [Inject]
+  protected UserService UserService { get; set; }
+
+  protected override async Task OnInitializedAsync()
+  {
+    UserService.OnBroadcastChoiceChanged -= OnBroadcastChoiceChangedAsync;
+    UserService.OnBroadcastChoiceChanged += OnBroadcastChoiceChangedAsync;
+
+    await UpdateChoicesAsync();
+  }
+
+  public async Task UpdateChoicesAsync()
+  {
+    var restaurants = await StorageService.RestaurantsTask;
+    var allUsersChoices = await UserService.GetAllChoicesAsync(todayOnly: true);
+    Choices = allUsersChoices.ToDictionary(
+      x => UserService.Users[x.GetUserId()], x =>
+      {
+        var choices = x.GetChoicesTyped();
+        return restaurants.Where(y => choices.Contains(y.GetId())).ToList();
+      });
+  }
+
+  public async Task OnBroadcastChoiceChangedAsync(BroadcastMessage message)
+  {
+    await UpdateChoicesAsync();
+    await InvokeAsync(StateHasChanged);
+  }
+}

@@ -1,0 +1,18 @@
+@page "/"
+
+@if (IsLoggedIn)
+{
+  <MudContainer MaxWidth="MaxWidth.Medium">
+    <MudGrid Class="top-section">
+      <MudItem xs="12" sm="6" md="6">
+        <CurrentSelection />
+        <SelectionResult />
+        <PresenceList />
+      </MudItem>
+      <MudItem xs="12" sm="6" md="6">
+        <RestaurantPicker />
+      </MudItem>
+    </MudGrid>
+  </MudContainer>
+}
+

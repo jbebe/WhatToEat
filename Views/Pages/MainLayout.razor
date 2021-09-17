@@ -1,0 +1,61 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="defaultTheme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+  <MudAppBar Elevation="1">
+    <MudText Typo="Typo.h5" Class="ml-3">What to eat?@(Name != null ? $" - {Name}" : "")</MudText>
+    <MudSpacer />
+    <MudIconButton @onclick="@ToggleMenu" Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+    @if (ShowMenu)
+    {
+      <MudPaper Class="app-menu" Width="300px">
+        <MudList Clickable="true">
+          <MudListItem Text="Inbox" Icon="@Icons.Material.Filled.Inbox" />
+          <MudListItem Text="Sent" Icon="@Icons.Material.Filled.Send" />
+          <MudDivider />
+          <MudListItem Text="Trash" />
+          <MudListItem Text="Spam" />
+        </MudList>
+      </MudPaper>
+    }
+  </MudAppBar>
+  <MudMainContent>
+    @Body
+  </MudMainContent>
+</MudLayout>
+
+@code {
+
+    public string Name { get; set; }
+
+    [Inject]
+    protected UserService UserService { get; set; }
+
+    MudTheme defaultTheme = new()
+    {
+      Palette = new Palette()
+      {
+        Background = "#f1f1f1"
+      }
+    };
+
+    bool ShowMenu { get; set; } = false;
+
+    void ToggleMenu() => ShowMenu = !ShowMenu;
+
+    protected override void OnInitialized()
+    {
+      Name = UserService.UserData?.Name;
+      UserService.OnLoginSuccessful -= UpdateName;
+      UserService.OnLoginSuccessful += UpdateName;
+    }
+
+    protected void UpdateName()
+    {
+      Name = UserService.UserData?.Name;
+      InvokeAsync(StateHasChanged);
+    }
+}

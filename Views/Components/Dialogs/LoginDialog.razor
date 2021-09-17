@@ -1,0 +1,31 @@
+<MudDialog>
+  <DialogContent>
+    <MudForm @bind-IsValid="@Success">
+      <MudTextField
+        T="string" @bind-Value="@Username" @ref="UsernameField"
+        Label="Username" Required="true" RequiredError="Username is required!"
+        Validation="@(new Func<string, string>(CheckUsernameLength))" />
+    </MudForm>
+  </DialogContent>
+  <DialogActions>
+    <MudButton Color="Color.Primary" OnClick="Submit" Disabled="@(!Success)">Login</MudButton>
+  </DialogActions>
+</MudDialog>
+
+@code {
+  [CascadingParameter]
+  MudDialogInstance MudDialog { get; set; }
+
+  MudTextField<string> UsernameField { get; set; }
+
+  bool Success { get; set; }
+  string Username { get; set; }
+
+  void Submit() => MudDialog.Close(DialogResult.Ok(Username));
+
+  private static string CheckUsernameLength(string username)
+  {
+    if (username.Length < 3) return "Username too short";
+    return null;
+  }
+}
