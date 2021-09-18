@@ -1,5 +1,5 @@
-<MudTable @ref="Table" Class="ma-4" Dense="true" MultiSelection="true"
-          Items="@Restaurants" Hover="true" SelectedItemsChanged="@((HashSet<RestaurantData> changed) => OnSelectedItemChangedAsync(changed))">
+<MudTable @ref="Table" Items="Restaurants" Class="ma-4" Dense="true" MultiSelection="true"
+          Hover="true" SelectedItemsChanged="@((HashSet<RestaurantData> changed) => OnSelectedItemChangedAsync(changed))">
   <HeaderContent>
     <MudTh>Name</MudTh>
     <MudTh>PaymentMethod</MudTh>
@@ -12,45 +12,56 @@
 
 @code {
 
-    public MudTable<RestaurantData> Table { get; set; }
+  public MudTable<RestaurantData> Table { get; set; }
 
-    private List<RestaurantData> Restaurants { get; set; } = new();
+  private List<RestaurantData> Restaurants { get; set; } = new();
 
-    [Inject]
-    public StorageService Storage { get; set; }
+  [Inject]
+  public StorageService StorageService { get; set; }
 
-    [Inject]
-    protected UserService UserService { get; set; }
+  [Inject]
+  protected UserService UserService { get; set; }
 
-    protected override async Task OnInitializedAsync()
+  protected override async Task OnInitializedAsync()
+  {
+    await UpdateTableAsync();
+
+    UserService.OnBroadcastRestaurantChanged -= UpdateTableAsync;
+    UserService.OnBroadcastRestaurantChanged += UpdateTableAsync;
+  }
+
+  private async Task UpdateTableAsync()
+  {
+    Restaurants = await StorageService.GetRestaurantsAsync(forceReload: true);
+    var choicesEntity = await StorageService.GetSelectionAsync(UserService.UserData.GetUserId());
+    if (choicesEntity != null)
     {
-      Restaurants = await Storage.RestaurantsTask;
-      var choicesEntity = await Storage.GetSelectionAsync(UserService.UserData.GetUserId());
-      if (choicesEntity != null)
+      var choices = choicesEntity.GetChoicesTyped();
+      // Warning BL0005: As long as Table doesn't have a SetSelectedItems method, we don't have a choice
+      Table.SelectedItems = new HashSet<RestaurantData>(Restaurants.Where(x => choices.Contains(x.RowKey)));
+    }
+
+    Table.Items = Restaurants;
+    await InvokeAsync(StateHasChanged);
+  }
+
+  private async Task OnSelectedItemChangedAsync(IEnumerable<RestaurantData> changed)
+  {
+    await UserService.SetSelectionAsync(changed.Select(x => x.RowKey).ToList());
+  }
+
+  private static string GetPaymentMethodString(PaymentMethod method, string separator)
+  {
+    string MapToEmoji(PaymentMethod m) =>
+      m switch
       {
-        var choices = choicesEntity.GetChoicesTyped();
-        // Warning BL0005: As long as Table doesn't have a SetSelectedItems method, we don't have a choice
-        Table.SelectedItems = new HashSet<RestaurantData>(Restaurants.Where(x => choices.Contains(x.RowKey)));
-      }
-    }
+        PaymentMethod.Cash => "💵",
+        PaymentMethod.BankCard => "💳",
+        PaymentMethod.SzepCard => "SZÉP",
+        _ => throw new ArgumentOutOfRangeException()
+      };
 
-    private async Task OnSelectedItemChangedAsync(IEnumerable<RestaurantData> changed)
-    {
-      await UserService.SetSelectionAsync(changed.Select(x => x.RowKey).ToList());
-    }
-
-    private static string GetPaymentMethodString(PaymentMethod method, string separator)
-    {
-      string MapToEmoji(PaymentMethod m) =>
-        m switch
-        {
-          PaymentMethod.Cash => "💵",
-          PaymentMethod.BankCard => "💳",
-          PaymentMethod.SzepCard => "SZÉP",
-          _ => throw new ArgumentOutOfRangeException()
-        };
-
-      return string.Join(separator, method.ToValues().Select((Func<PaymentMethod, string>)MapToEmoji));
-    }
+    return string.Join(separator, method.ToValues().Select((Func<PaymentMethod, string>)MapToEmoji));
+  }
 
 }

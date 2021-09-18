@@ -1,0 +1,68 @@
+@using Helpers
+@inject ISnackbar Snackbar
+
+<MudDialog>
+  <DialogContent>
+    <MudForm @bind-IsValid="@FormSuccess">
+      <MudItem xs="12" sm="12" md="12">
+        <MudTextField @bind-Value="RestaurantName" Label="Name" Variant="Variant.Outlined" T="string" Validation="FormHelper.ValidateText(3)" />
+      </MudItem>
+      <MudItem xs="12" sm="12" md="12">
+        <MudCheckBox T="bool" @ref="CashPayment" Label="Cash" @onclick="Validate(CashPayment)" />
+      </MudItem>
+      <MudItem xs="12" sm="12" md="12">
+        <MudCheckBox T="bool" @ref="BankCardPayment" Label="Bank card" @onclick="Validate(BankCardPayment)" />
+      </MudItem>
+      <MudItem xs="12" sm="12" md="12">
+        <MudCheckBox T="bool" @ref="SzepCardPayment" Label="SZÉP card" @onclick="Validate(SzepCardPayment)" Color="Color.Tertiary" />
+      </MudItem>
+    </MudForm>
+  </DialogContent>
+  <DialogActions>
+    <MudButton Color="Color.Primary" OnClick="Submit" Disabled="@(!FormSuccess || !CheckboxSuccess)">Create</MudButton>
+  </DialogActions>
+</MudDialog>
+
+@code { 
+  public string RestaurantName { get; set; }
+
+  public bool FormSuccess { get; set; }
+
+  public bool CheckboxSuccess { get; set; }
+
+  public MudCheckBox<bool> CashPayment { get; set; }
+
+  public MudCheckBox<bool> BankCardPayment { get; set; }
+
+  public MudCheckBox<bool> SzepCardPayment { get; set; }
+
+  [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+  public Action Validate(MudCheckBox<bool> checkbox) => () =>
+  {
+    var checkboxMap = new Dictionary<MudCheckBox<bool>, bool>
+    {
+      { CashPayment, CashPayment.Checked },
+      { BankCardPayment, BankCardPayment.Checked },
+      { SzepCardPayment, SzepCardPayment.Checked },
+    };
+    checkboxMap[checkbox] = !checkboxMap[checkbox];
+
+    CheckboxSuccess = checkboxMap.Any(x => x.Value);
+  };
+
+  public void Submit()
+  {
+    Snackbar.Add("Restaurant created", Severity.Success);
+
+    var cash = CashPayment.Checked.ToInt();
+    var bankCard = BankCardPayment.Checked.ToInt();
+    var szepCard = SzepCardPayment.Checked.ToInt();
+    var paymentMethod =
+      ((int)PaymentMethod.Cash * cash) +
+      ((int)PaymentMethod.BankCard * bankCard) +
+      ((int)PaymentMethod.SzepCard * szepCard);
+    var restaurant = new RestaurantData(RestaurantName.ToLowerMd5Hash(), RestaurantName, (PaymentMethod)paymentMethod);
+    MudDialog.Close(DialogResult.Ok(restaurant));
+  }
+}

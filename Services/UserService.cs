@@ -52,6 +52,8 @@ namespace WhatToEat.Services
 
     public event Func<PresenceChanged, Task> OnBroadcastPresenceChanged;
 
+    public event Func<Task> OnBroadcastRestaurantChanged;
+
     #endregion
 
     public UserService(
@@ -77,6 +79,9 @@ namespace WhatToEat.Services
             break;
           case BroadcastEventType.PresenceChanged:
             OnBroadcastPresenceChanged?.Invoke((PresenceChanged)msg);
+            break;
+          case BroadcastEventType.RestaurantChanged:
+            OnBroadcastRestaurantChanged?.Invoke();
             break;
           default:
             throw new ArgumentOutOfRangeException();
@@ -148,8 +153,11 @@ namespace WhatToEat.Services
     public async Task<List<string>> GetChoicesAsync()
     {
       UserChoice = await StorageService.GetSelectionAsync(UserData.GetUserId());
-      var choices = UserChoice?.GetChoicesTyped();
-      return (await StorageService.RestaurantsTask)
+      if (UserChoice == null)
+        return new List<string>();
+
+      var choices = UserChoice.GetChoicesTyped();
+      return (await StorageService.GetRestaurantsAsync())
         .Where(x => choices.Contains(x.RowKey))
         .Select(x => x.Name).ToList();
     }
@@ -164,6 +172,11 @@ namespace WhatToEat.Services
     public void SendPresence()
     {
       EventService.CreateMessage(new PresenceChanged(UserData.GetUserId()));
+    }
+
+    public void SendRestaurantUpdate()
+    {
+      EventService.CreateMessage(new RestaurantChanged());
     }
   }
 }

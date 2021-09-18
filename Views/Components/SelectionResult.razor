@@ -40,7 +40,7 @@
 
   public async Task UpdateChoicesAsync()
   {
-    var restaurants = await StorageService.RestaurantsTask;
+    var restaurants = await StorageService.GetRestaurantsAsync();
     var allUsersChoices = await UserService.GetAllChoicesAsync(todayOnly: true);
     Choices = allUsersChoices.ToDictionary(
       x => UserService.Users[x.GetUserId()], x =>

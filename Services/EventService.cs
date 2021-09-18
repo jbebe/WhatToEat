@@ -5,7 +5,8 @@ namespace WhatToEat.Services
   public enum BroadcastEventType
   {
     ChoiceChanged,
-    PresenceChanged
+    PresenceChanged,
+    RestaurantChanged,
   }
 
   public class BroadcastMessage
@@ -34,6 +35,14 @@ namespace WhatToEat.Services
       UserId = userId;
     }
   }
+
+  public class RestaurantChanged : BroadcastMessage
+  {
+    public RestaurantChanged() : base(BroadcastEventType.RestaurantChanged)
+    {
+    }
+  }
+
 
   public class EventService
   {

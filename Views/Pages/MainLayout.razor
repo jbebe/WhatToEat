@@ -1,4 +1,5 @@
 @inherits LayoutComponentBase
+@inject IDialogService DialogService
 
 <MudThemeProvider Theme="defaultTheme" />
 <MudDialogProvider />
@@ -11,51 +12,57 @@
     <MudIconButton @onclick="@ToggleMenu" Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
     @if (ShowMenu)
     {
-      <MudPaper Class="app-menu" Width="300px">
-        <MudList Clickable="true">
-          <MudListItem Text="Inbox" Icon="@Icons.Material.Filled.Inbox" />
-          <MudListItem Text="Sent" Icon="@Icons.Material.Filled.Send" />
-          <MudDivider />
-          <MudListItem Text="Trash" />
-          <MudListItem Text="Spam" />
-        </MudList>
-      </MudPaper>
-    }
+<MudPaper Class="app-menu" Width="300px">
+  <MudList Clickable="true">
+    <MudListItem Text="New Restaurant" Icon="@Icons.Material.Filled.Restaurant" OnClick="OpenCreateRestaurantDialogAsync" />
+  </MudList>
+</MudPaper>}
   </MudAppBar>
   <MudMainContent>
     @Body
   </MudMainContent>
 </MudLayout>
 
-@code {
+@code { 
+  public string Name { get; set; }
 
-    public string Name { get; set; }
+  [Inject]
+  protected UserService UserService { get; set; }
 
-    [Inject]
-    protected UserService UserService { get; set; }
+  [Inject]
+  protected StorageService StorageService { get; set; }
 
-    MudTheme defaultTheme = new()
+  MudTheme defaultTheme = new()
+  {
+    Palette = new Palette()
     {
-      Palette = new Palette()
-      {
-        Background = "#f1f1f1"
-      }
-    };
-
-    bool ShowMenu { get; set; } = false;
-
-    void ToggleMenu() => ShowMenu = !ShowMenu;
-
-    protected override void OnInitialized()
-    {
-      Name = UserService.UserData?.Name;
-      UserService.OnLoginSuccessful -= UpdateName;
-      UserService.OnLoginSuccessful += UpdateName;
+      Background = "#f1f1f1"
     }
+  };
 
-    protected void UpdateName()
-    {
-      Name = UserService.UserData?.Name;
-      InvokeAsync(StateHasChanged);
-    }
+  bool ShowMenu { get; set; } = false;
+
+  void ToggleMenu() => ShowMenu = !ShowMenu;
+
+  protected override void OnInitialized()
+  {
+    Name = UserService.UserData?.Name;
+    UserService.OnLoginSuccessful -= UpdateName;
+    UserService.OnLoginSuccessful += UpdateName;
+  }
+
+  protected void UpdateName()
+  {
+    Name = UserService.UserData?.Name;
+    InvokeAsync(StateHasChanged);
+  }
+
+  public async Task OpenCreateRestaurantDialogAsync()
+  {
+    ToggleMenu();
+    var dialog = DialogService.Show<CreateRestaurantDialog>("New restaurant");
+    var restaurant = (await dialog.Result).Data as RestaurantData;
+    await StorageService.CreateRestaurantAsync(restaurant);
+    UserService.SendRestaurantUpdate();
+  }
 }

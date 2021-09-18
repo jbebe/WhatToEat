@@ -11,20 +11,17 @@ namespace WhatToEat.Services
 {
   public class StorageService
   {
-    public Task<List<RestaurantData>> RestaurantsTask => LazyRestaurants.Value;
+    private List<RestaurantData> Restaurants { get; set; }
 
     private TableServiceClient Client { get; }
 
     private TableClient Table { get; }
-
-    private Lazy<Task<List<RestaurantData>>> LazyRestaurants { get; }
 
     public StorageService(IConfiguration config)
     {
       Client = new TableServiceClient(config.GetValue<string>("AppConfig:StorageConnectionString"));
       Client.CreateTableIfNotExists("whattoeat");
       Table = Client.GetTableClient("whattoeat");
-      LazyRestaurants = new Lazy<Task<List<RestaurantData>>>(GetRestaurantsAsync);
     }
 
     public static string GetStorageDateString(DateTime? date = null) =>
@@ -63,14 +60,18 @@ namespace WhatToEat.Services
     public async Task CreateRestaurantAsync(RestaurantData restaurant) =>
       await Table.UpsertEntityAsync(restaurant, TableUpdateMode.Replace);
 
-    private async Task<List<RestaurantData>> GetRestaurantsAsync()
+    public async Task<List<RestaurantData>> GetRestaurantsAsync(bool forceReload = false)
     {
-      var result = new List<RestaurantData>();
-      var restaurants = Table.QueryAsync<RestaurantData>(r => r.PartitionKey == RestaurantData.PrimaryKey);
-      await foreach (var r in restaurants)
-        result.Add(r);
+      if (Restaurants == null || forceReload)
+      {
+        var result = new List<RestaurantData>();
+        var restaurants = Table.QueryAsync<RestaurantData>(r => r.PartitionKey == RestaurantData.PrimaryKey);
+        await foreach (var r in restaurants)
+          result.Add(r);
+        Restaurants = result.OrderBy(x => x.Name).ToList();
+      }
 
-      return result;
+      return Restaurants;
     }
 
     public async Task UpsertSelectionAsync(string userId, IEnumerable<string> restaurantIds)
