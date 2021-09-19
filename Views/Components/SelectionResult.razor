@@ -2,17 +2,12 @@
   <MudCardContent>
     <strong>Selection result:</strong>
     <MudList>
-      @foreach (var user in Choices)
+      @foreach (var (count, ids) in Results)
       {
         <MudPaper>
           <MudListItem>
-            @(user.Key.Name):
-            <MudList>
-              @foreach (var choice in user.Value)
-              {
-                <MudListItem Class="pa-0" Text="@(choice.Name)"/>
-              }
-            </MudList>
+            @count votes:
+            <p>@ids</p>
           </MudListItem>
         </MudPaper>
       }
@@ -23,6 +18,8 @@
 @code {
 
   private Dictionary<UserData, List<RestaurantData>> Choices { get; set; } = new();
+
+  private List<(int Count, string RestaurandIds)> Results { get; set; } = new();
 
   [Inject]
   protected StorageService StorageService { get; set; }
@@ -48,6 +45,17 @@
         var choices = x.GetChoicesTyped();
         return restaurants.Where(y => choices.Contains(y.GetId())).ToList();
       });
+
+    Results = allUsersChoices
+      .SelectMany(x => x.GetChoicesTyped()) // get flat array of restaurant ids
+      .GroupBy(x => x) // group by ids, making lists of the same ids
+      .ToDictionary(x => x.Key, x => x.Count()) // aggregate these same ids by count, create id => count map
+      .GroupBy(x => x.Value, x => x.Key) // group by count, collect every id that has the same count
+      .ToDictionary(x => x.Key, x => string.Join(", ", x)) // join ids by comma, create count => id list
+      .OrderByDescending(x => x.Key) // order key-pairs by count descending
+      .Take(3) // select the 3 most loved restaurant-list
+      .Select(x => (x.Key, x.Value))
+      .ToList();
   }
 
   public async Task OnBroadcastChoiceChangedAsync(BroadcastMessage message)
