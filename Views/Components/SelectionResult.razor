@@ -6,8 +6,8 @@
       {
         <MudPaper>
           <MudListItem>
-            @count votes:
-            <p>@ids</p>
+            @count vote@(count != 1 ? "s" : ""):
+            <p>@(string.Join(", ", ids.Select(x => x.Name)))</p>
           </MudListItem>
         </MudPaper>
       }
@@ -17,9 +17,7 @@
 
 @code {
 
-  private Dictionary<UserData, List<RestaurantData>> Choices { get; set; } = new();
-
-  private List<(int Count, string RestaurandIds)> Results { get; set; } = new();
+  private List<(int Count, List<RestaurantData> Restaurants)> Results { get; set; } = new();
 
   [Inject]
   protected StorageService StorageService { get; set; }
@@ -37,24 +35,18 @@
 
   public async Task UpdateChoicesAsync()
   {
-    var restaurants = await StorageService.GetRestaurantsAsync();
+    var restaurants = (await StorageService.GetRestaurantsAsync()).ToDictionary(x => x.GetId());
     var allUsersChoices = await UserService.GetAllChoicesAsync(todayOnly: true);
-    Choices = allUsersChoices.ToDictionary(
-      x => UserService.Users[x.GetUserId()], x =>
-      {
-        var choices = x.GetChoicesTyped();
-        return restaurants.Where(y => choices.Contains(y.GetId())).ToList();
-      });
-
+    
     Results = allUsersChoices
       .SelectMany(x => x.GetChoicesTyped()) // get flat array of restaurant ids
       .GroupBy(x => x) // group by ids, making lists of the same ids
       .ToDictionary(x => x.Key, x => x.Count()) // aggregate these same ids by count, create id => count map
       .GroupBy(x => x.Value, x => x.Key) // group by count, collect every id that has the same count
-      .ToDictionary(x => x.Key, x => string.Join(", ", x)) // join ids by comma, create count => id list
+      .ToDictionary(x => x.Key) // join ids by comma, create count => id list
       .OrderByDescending(x => x.Key) // order key-pairs by count descending
       .Take(3) // select the 3 most loved restaurant-list
-      .Select(x => (x.Key, x.Value))
+      .Select(x => (x.Key, x.Value.Select(y => restaurants[y]).ToList()))
       .ToList();
   }
 
