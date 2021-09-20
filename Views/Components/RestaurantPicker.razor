@@ -27,9 +27,6 @@
   [Inject]
   protected UserService UserService { get; set; }
 
-  [Inject]
-  public LoggerService LoggerService { get; set; }
-
   protected override async Task OnInitializedAsync()
   {
     await UpdateTableAsync();
@@ -38,23 +35,30 @@
     UserService.OnBroadcastRestaurantChanged += UpdateTableAsync;
   }
 
+#pragma warning disable CS1998
   private async Task UpdateTableAsync()
   {
-    await LoggerService.ClientLogAsync("Update table called");
-    Restaurants = await StorageService.GetRestaurantsAsync(forceReload: true);
-    var choicesEntity = await StorageService.GetSelectionAsync(UserService.UserData.GetUserId());
-    if (choicesEntity != null)
+#pragma warning disable CS4014
+    InvokeAsync(async () =>
     {
-      var choices = choicesEntity.GetChoicesTyped();
-      // Warning BL0005: As long as Table doesn't have a SetSelectedItems method, we don't have a choice
+      Restaurants = await StorageService.GetRestaurantsAsync(forceReload: true);
+      var choicesEntity = await StorageService.GetSelectionAsync(UserService.UserData.GetUserId());
+      if (choicesEntity != null)
+      {
+        var choices = choicesEntity.GetChoicesTyped();
+        // Warning BL0005: As long as Table doesn't have a SetSelectedItems method, we don't have a choice
 #pragma warning disable BL0005
-      Table.SelectedItems = new HashSet<RestaurantData>(Restaurants.Where(x => choices.Contains(x.RowKey)));
-    }
+        Table.SelectedItems = new HashSet<RestaurantData>(Restaurants.Where(x => choices.Contains(x.RowKey)));
+      }
 
-    Table.Items = Restaurants;
+      Table.Items = Restaurants;
 #pragma warning restore BL0005
-    await InvokeAsync(StateHasChanged);
+
+      StateHasChanged();
+    });
+#pragma warning restore CS4014
   }
+#pragma warning restore CS1998
 
   private async Task OnSelectedItemChangedAsync(IEnumerable<RestaurantData> changed)
   {
