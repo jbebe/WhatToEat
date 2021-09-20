@@ -1,14 +1,17 @@
-<MudTable @ref="Table" Items="Restaurants" Class="ma-4" Dense="true" MultiSelection="true"
-          Hover="true" SelectedItemsChanged="@((HashSet<RestaurantData> changed) => OnSelectedItemChangedAsync(changed))">
-  <HeaderContent>
-    <MudTh>Name</MudTh>
-    <MudTh>PaymentMethod</MudTh>
-  </HeaderContent>
-  <RowTemplate>
-    <MudTd DataLabel="Name">@context.Name</MudTd>
-    <MudTd DataLabel="PaymentMethod">@GetPaymentMethodString(context.PaymentMethod, " ")</MudTd>
-  </RowTemplate>
-</MudTable>
+<MudContainer>
+  <MudText Typo="Typo.h5" Class="ml-2 mt-4 mb-2">Restaurants</MudText>
+  <MudTable @ref="Table" Items="Restaurants" Dense="true" MultiSelection="true"
+            Hover="true" SelectedItemsChanged="@((HashSet<RestaurantData> changed) => OnSelectedItemChangedAsync(changed))">
+    <HeaderContent>
+      <MudTh><MudTableSortLabel SortBy="new Func<RestaurantData, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortBy="new Func<RestaurantData, object>(x=>x.PaymentMethod)">Payment method</MudTableSortLabel></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+      <MudTd DataLabel="Name">@context.Name</MudTd>
+      <MudTd DataLabel="Payment method">@GetPaymentMethodString(context.PaymentMethod, " ")</MudTd>
+    </RowTemplate>
+  </MudTable>
+</MudContainer>
 
 @code {
 
@@ -38,10 +41,12 @@
     {
       var choices = choicesEntity.GetChoicesTyped();
       // Warning BL0005: As long as Table doesn't have a SetSelectedItems method, we don't have a choice
+#pragma warning disable BL0005
       Table.SelectedItems = new HashSet<RestaurantData>(Restaurants.Where(x => choices.Contains(x.RowKey)));
     }
 
     Table.Items = Restaurants;
+#pragma warning restore BL0005
     await InvokeAsync(StateHasChanged);
   }
 

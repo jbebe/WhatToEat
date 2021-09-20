@@ -1,20 +1,20 @@
 @using System.Timers
 @implements IDisposable
 
-<MudCard Class="ma-4">
-  <MudCardContent>
-    <strong>Online users:</strong>
-    <MudList>
-      @foreach (var (_, userData) in OnlineUsers)
-      {
-        <MudListItem Class="pa-0" Text="@(userData.Name)"/>
-      }
-    </MudList>
-  </MudCardContent>
-</MudCard>
+<MudContainer>
+  <MudText Typo="Typo.h5" Class="ml-2 mt-4 mb-2">Online users</MudText>
+  <MudList Class="pt-0">
+    @foreach (var (_, userData) in OnlineUsers)
+    {
+      <MudPaper Class="my-2 px-3">
+        <MudListItem Class="pa-0" Text="@(userData.Name)" />
+      </MudPaper>
+    }
+  </MudList>
+</MudContainer>
 
-@code {
-
+@code { 
+  
   private const int OfflineMultiplier = 4;
   private const int IntervalSec = 5;
 
@@ -22,7 +22,7 @@
   {
     public int Countdown { get; set; }
 
-    public CountdownUserData(UserData userData, int countdown): base(userData.GetUserId(), userData.Name)
+    public CountdownUserData(UserData userData, int countdown) : base(userData.GetUserId(), userData.Name)
     {
       Countdown = countdown;
     }
@@ -87,6 +87,5 @@
   {
     UserService.OnBroadcastPresenceChanged -= OnBroadcastPresenceChangedAsync;
     Timer?.Dispose();
-  }
-
+  } 
 }

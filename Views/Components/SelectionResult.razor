@@ -1,19 +1,22 @@
-<MudCard Class="ma-4">
-  <MudCardContent>
-    <strong>Selection result:</strong>
-    <MudList>
-      @foreach (var (count, ids) in Results)
-      {
-        <MudPaper>
-          <MudListItem>
-            @count vote@(count != 1 ? "s" : ""):
-            <p>@(string.Join(", ", ids.Select(x => x.Name)))</p>
-          </MudListItem>
-        </MudPaper>
-      }
-    </MudList>
-  </MudCardContent>
-</MudCard>
+<MudContainer>
+  <MudText Typo="Typo.h5" Class="mx-2 mt-4 mb-2">Result</MudText>
+  <MudList Class="pt-0">
+    @foreach (var (count, ids) in Results)
+    {
+    <MudListItem Class="pa-0 ma-0">
+      <MudPaper Class="py-2 px-3">
+        <MudText Style="font-weight: 600">@count vote@(count != 1 ? "s" : ""):</MudText>
+        <MudText Typo="Typo.body2">
+          @foreach (var restaurant in ids)
+          {
+            <MudChip Variant="Variant.Outlined" Color="@(UiHelper.PickEnumValueByHash<Color>(restaurant.GetId()))">@restaurant.Name</MudChip>
+          }
+        </MudText>
+      </MudPaper>
+    </MudListItem>
+    }
+  </MudList>
+</MudContainer>
 
 @code {
 

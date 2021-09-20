@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace WhatToEat.Helpers
 {
-  public class FormHelper
+  public class UiHelper
   {
     public static Func<string, IEnumerable<string>> ValidateText(int min = 0, int max = int.MaxValue)
     {
@@ -18,14 +17,14 @@ namespace WhatToEat.Helpers
       return validate;
     }
 
-    public static Func<string, IEnumerable<string>> ValidateCheckboxes(Func<IEnumerable<bool>> getCheckboxes)
+    public static T PickEnumValueByHash<T>(string hash) where T: Enum
     {
-      IEnumerable<string> validate(string input)
-      {
-        if (getCheckboxes().All(x => x == false)) yield return "At least one checkbox must be selected!";
-      }
-
-      return validate;
+      var intValue = hash.Sum(x => (int)x);
+      var rnd = new Random(intValue);
+      var enumValues = Enum.GetValues(typeof(T)).Cast<T>().ToList();
+      var rndValue = rnd.Next(enumValues.Count);
+      var enumValue = enumValues[rndValue];
+      return enumValue;
     }
   }
 }
