@@ -1,6 +1,6 @@
 using System;
 
-namespace WhatToEat.Services
+namespace WhatToEat.Services.Singleton
 {
   public enum BroadcastEventType
   {

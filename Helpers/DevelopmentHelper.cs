@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
-using WhatToEat.Services;
+using WhatToEat.Services.Scoped;
 using WhatToEat.Types;
 
 namespace WhatToEat.Helpers

@@ -7,7 +7,7 @@ using Azure.Data.Tables;
 using Microsoft.Extensions.Configuration;
 using WhatToEat.Types;
 
-namespace WhatToEat.Services
+namespace WhatToEat.Services.Scoped
 {
   public class StorageService
   {

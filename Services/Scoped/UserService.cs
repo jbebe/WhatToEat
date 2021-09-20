@@ -10,9 +10,10 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using WhatToEat.Helpers;
+using WhatToEat.Services.Singleton;
 using WhatToEat.Types;
 
-namespace WhatToEat.Services
+namespace WhatToEat.Services.Scoped
 {
   public class UserService
   {

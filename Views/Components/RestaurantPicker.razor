@@ -1,3 +1,5 @@
+@implements IDisposable
+
 <MudContainer>
   <MudText Typo="Typo.h5" Class="ml-2 mt-4 mb-2">Restaurants</MudText>
   <MudTable @ref="Table" Items="Restaurants" Dense="true" MultiSelection="true"
@@ -25,6 +27,9 @@
   [Inject]
   protected UserService UserService { get; set; }
 
+  [Inject]
+  public LoggerService LoggerService { get; set; }
+
   protected override async Task OnInitializedAsync()
   {
     await UpdateTableAsync();
@@ -35,6 +40,7 @@
 
   private async Task UpdateTableAsync()
   {
+    await LoggerService.ClientLogAsync("Update table called");
     Restaurants = await StorageService.GetRestaurantsAsync(forceReload: true);
     var choicesEntity = await StorageService.GetSelectionAsync(UserService.UserData.GetUserId());
     if (choicesEntity != null)
@@ -69,4 +75,8 @@
     return string.Join(separator, method.ToValues().Select((Func<PaymentMethod, string>)MapToEmoji));
   }
 
+  public void Dispose()
+  {
+    UserService.OnBroadcastRestaurantChanged -= UpdateTableAsync;
+  }
 }

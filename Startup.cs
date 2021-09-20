@@ -6,9 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MudBlazor.Services;
 using Blazored.LocalStorage;
-using WhatToEat.Services;
 using WhatToEat.Helpers;
 using Microsoft.AspNetCore.Http;
+using WhatToEat.Services.Singleton;
+using WhatToEat.Services.Scoped;
 
 namespace WhatToEat
 {
@@ -33,6 +34,7 @@ namespace WhatToEat
       services.AddBlazoredLocalStorage();
       services.AddSingleton<EventService>();
       services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+      services.AddScoped<LoggerService>();
       services.AddScoped<StorageService>();
       services.AddScoped<UserService>();
       services.Configure<RazorPagesOptions>(options => options.RootDirectory = "/Views/Pages");

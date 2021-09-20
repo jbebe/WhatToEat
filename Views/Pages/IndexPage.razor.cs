@@ -1,9 +1,8 @@
-using System;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using MudBlazor;
 using System.Threading.Tasks;
-using WhatToEat.Services;
+using WhatToEat.Services.Scoped;
 
 namespace WhatToEat.Views.Pages
 {
