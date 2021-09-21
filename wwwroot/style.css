@@ -7,3 +7,12 @@ body {
   top: 50px;
   right: 30px;
 }
+
+.szep-icon {
+  border-radius: 3px;
+  color: #fff2aa;
+  background: #358c1d;
+  padding: 2px 2px;
+  font-weight: 800;
+  font-size: 9px;
+}

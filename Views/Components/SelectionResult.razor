@@ -17,7 +17,15 @@
         </MudPaper>
       </MudListItem>
     }
-  </MudList>
+    @if (!Results.Any())
+    {
+      <MudListItem Class="pa-0 ma-0">
+        <MudPaper Class="py-2 px-3">
+          <MudText>No votes cast yet</MudText>
+        </MudPaper>
+      </MudListItem>
+    }
+    </MudList>
 </MudContainer>
 
 @code {

@@ -65,18 +65,18 @@
     await UserService.SetSelectionAsync(changed.Select(x => x.RowKey).ToList());
   }
 
-  private static string GetPaymentMethodString(PaymentMethod method, string separator)
+  private static MarkupString GetPaymentMethodString(PaymentMethod method, string separator)
   {
     string MapToEmoji(PaymentMethod m) =>
       m switch
       {
         PaymentMethod.Cash => "💵",
         PaymentMethod.BankCard => "💳",
-        PaymentMethod.SzepCard => "SZÉP",
+        PaymentMethod.SzepCard => "<span class=\"szep-icon\">SZÉP</span>",
         _ => throw new ArgumentOutOfRangeException()
       };
 
-    return string.Join(separator, method.ToValues().Select((Func<PaymentMethod, string>)MapToEmoji));
+    return (MarkupString)string.Join(separator, method.ToValues().Select((Func<PaymentMethod, string>)MapToEmoji));
   }
 
   public void Dispose()
