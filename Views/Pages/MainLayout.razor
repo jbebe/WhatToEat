@@ -1,60 +1,12 @@
 @inherits LayoutComponentBase
-@inject IDialogService DialogService
 
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
-  <MudAppBar Elevation="1">
-    <MudText Typo="Typo.h5" Class="ml-3">What to eat? / @Name / @(DateTime.UtcNow.DayOfWeek)</MudText>
-    <MudSpacer />
-    <MudIconButton @onclick="@ToggleMenu" Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
-    @if (ShowMenu)
-    {
-<MudPaper Class="app-menu" Width="300px">
-  <MudList Clickable="true">
-    <MudListItem Text="New Restaurant" Icon="@Icons.Material.Filled.Restaurant" OnClick="OpenCreateRestaurantDialogAsync" />
-  </MudList>
-</MudPaper>}
-  </MudAppBar>
+  <Header />
   <MudMainContent>
     @Body
   </MudMainContent>
 </MudLayout>
-
-@code { 
-  public string Name { get; set; }
-
-  [Inject]
-  protected UserService UserService { get; set; }
-
-  [Inject]
-  protected StorageService StorageService { get; set; }
-
-  bool ShowMenu { get; set; } = false;
-
-  void ToggleMenu() => ShowMenu = !ShowMenu;
-
-  protected override void OnInitialized()
-  {
-    Name = UserService.UserData?.Name;
-    UserService.OnLoginSuccessful -= UpdateName;
-    UserService.OnLoginSuccessful += UpdateName;
-  }
-
-  protected void UpdateName()
-  {
-    Name = UserService.UserData?.Name;
-    InvokeAsync(StateHasChanged);
-  }
-
-  public async Task OpenCreateRestaurantDialogAsync()
-  {
-    ToggleMenu();
-    var dialog = DialogService.Show<CreateRestaurantDialog>("New restaurant");
-    var restaurant = (await dialog.Result).Data as RestaurantData;
-    await StorageService.CreateRestaurantAsync(restaurant);
-    UserService.SendRestaurantUpdate();
-  }
-}

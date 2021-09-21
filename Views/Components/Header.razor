@@ -1,0 +1,53 @@
+﻿@inject IDialogService DialogService
+@inject StorageService StorageService
+ 
+<MudAppBar Elevation="1">
+  @if (UserService.IsLoggedIn)
+  {
+    <MudText Typo="Typo.h5" Class="ml-3">What to eat? / @Name / @(DateTime.UtcNow.DayOfWeek)</MudText>
+    <MudSpacer />
+    <MudIconButton @onclick="@ToggleMenu" Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+  }
+  @if (ShowMenu)
+  {
+    <MudPaper Class="app-menu" Width="300px">
+      <MudList Clickable="true">
+        <MudListItem Text="New Restaurant" Icon="@Icons.Material.Filled.Restaurant" OnClick="OpenCreateRestaurantDialogAsync" />
+      </MudList>
+    </MudPaper>
+  }
+</MudAppBar>
+
+@code {
+
+  public string Name { get; set; }
+
+  bool ShowMenu { get; set; } = false;
+
+  [Inject]
+  protected UserService UserService { get; set; }
+
+  protected override void OnInitialized()
+  {
+    Name = UserService.UserData?.Name;
+    UserService.OnLoginSuccessful -= UpdateName;
+    UserService.OnLoginSuccessful += UpdateName;
+  }
+
+  void ToggleMenu() => ShowMenu = !ShowMenu;
+
+  protected void UpdateName()
+  {
+    Name = UserService.UserData.Name;
+    InvokeAsync(StateHasChanged);
+  }
+
+  public async Task OpenCreateRestaurantDialogAsync()
+  {
+    ToggleMenu();
+    var dialog = DialogService.Show<CreateRestaurantDialog>("New restaurant");
+    var restaurant = (await dialog.Result).Data as RestaurantData;
+    await StorageService.CreateRestaurantAsync(restaurant);
+    UserService.SendRestaurantUpdate();
+  }
+}

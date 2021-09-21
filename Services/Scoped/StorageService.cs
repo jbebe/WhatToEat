@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Configuration;
+using WhatToEat.Types;
 using WhatToEat.Types.TableEntities;
 
 namespace WhatToEat.Services.Scoped
@@ -17,9 +18,9 @@ namespace WhatToEat.Services.Scoped
 
     private TableClient Table { get; }
 
-    public StorageService(IConfiguration config)
+    public StorageService(AppConfiguration config)
     {
-      Client = new TableServiceClient(config.GetValue<string>("AppConfig:StorageConnectionString"));
+      Client = new TableServiceClient(config.Secrets.StorageConnectionString);
       Client.CreateTableIfNotExists("whattoeat");
       Table = Client.GetTableClient("whattoeat");
     }

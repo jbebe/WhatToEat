@@ -25,6 +25,8 @@ namespace WhatToEat.Services.Scoped
 
     public Dictionary<string, UserData> Users { get; set; } = new();
 
+    public bool IsLoggedIn => UserData != null;
+
     #endregion
 
     #region Injected services

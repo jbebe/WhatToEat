@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using WhatToEat.Services.Scoped;
+using WhatToEat.Types;
 using WhatToEat.Types.Enums;
 using WhatToEat.Types.TableEntities;
 
@@ -8,9 +8,9 @@ namespace WhatToEat.Helpers
 {
   public class DevelopmentHelper
   {
-    public static void SetupTestEnvironmentIfNeeded(IConfiguration config)
+    public static void SetupTestEnvironmentIfNeeded(AppConfiguration config)
     {
-      if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
+      if (config.Constants.Environment == AppEnvironment.Production)
         return;
 
       // Create restaurants

@@ -5,11 +5,6 @@ namespace WhatToEat
 {
   public class Program
   {
-    /// <remarks>
-    /// Required environment variables:
-    ///   - WHATTOEAT_STORAGE_CONNSTR
-    ///   - ADUSER_INFO_URL
-    /// </remarks>
     public static void Main(string[] args)
     {
       CreateHostBuilder(args).Build().Run();

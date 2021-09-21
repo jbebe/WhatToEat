@@ -10,6 +10,7 @@ using WhatToEat.Helpers;
 using Microsoft.AspNetCore.Http;
 using WhatToEat.Services.Singleton;
 using WhatToEat.Services.Scoped;
+using WhatToEat.Types;
 
 namespace WhatToEat
 {
@@ -17,16 +18,15 @@ namespace WhatToEat
   {
     public Startup(IConfiguration configuration)
     {
-      Configuration = configuration;
+      Configuration = new AppConfiguration(configuration);
       DevelopmentHelper.SetupTestEnvironmentIfNeeded(Configuration);
     }
 
-    public IConfiguration Configuration { get; }
+    public AppConfiguration Configuration { get; }
 
-    // This method gets called by the runtime. Use this method to add services to the container.
-    // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
     public void ConfigureServices(IServiceCollection services)
     {
+      services.AddSingleton<AppConfiguration>();
       services.AddHttpClient();
       services.AddRazorPages();
       services.AddServerSideBlazor();
@@ -40,7 +40,6 @@ namespace WhatToEat
       services.Configure<RazorPagesOptions>(options => options.RootDirectory = "/Views/Pages");
     }
 
-    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
       if (env.IsDevelopment())

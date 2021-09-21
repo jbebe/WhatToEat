@@ -8,8 +8,6 @@ namespace WhatToEat.Views.Pages
 {
   public partial class IndexPage : ComponentBase
   {
-    public bool IsLoggedIn { get; set; }
-
     [Inject]
     protected IDialogService DialogService { get; set; }
 
@@ -21,10 +19,9 @@ namespace WhatToEat.Views.Pages
 
     protected override async Task OnAfterRenderAsync(bool firstRun)
     {
-      if (!IsLoggedIn)
+      if (!UserService.IsLoggedIn)
       {
         await UserService.LoginAsync();
-        IsLoggedIn = true;
         StateHasChanged();
       }
     }
