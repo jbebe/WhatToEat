@@ -20,7 +20,7 @@ namespace WhatToEat.Types.TableEntities
       ETag = ETag.All;
     }
 
-    public TableEntityBase(string partitionKey, string rowKey)
+    protected TableEntityBase(string partitionKey, string rowKey)
     {
       PartitionKey = partitionKey;
       RowKey = rowKey;

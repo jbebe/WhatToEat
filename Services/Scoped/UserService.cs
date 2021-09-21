@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using WhatToEat.Helpers;
 using WhatToEat.Services.Singleton;
+using WhatToEat.Types;
+using WhatToEat.Types.Enums;
 using WhatToEat.Types.TableEntities;
 
 namespace WhatToEat.Services.Scoped
@@ -18,6 +20,8 @@ namespace WhatToEat.Services.Scoped
   public class UserService
   {
     #region Service params
+
+    public record LocalStorageUserData(string UserId);
 
     public UserData UserData { get; set; }
 
@@ -41,7 +45,7 @@ namespace WhatToEat.Services.Scoped
 
     public IHttpClientFactory HttpClient { get; }
     
-    public IConfiguration Config { get; }
+    public AppConfiguration Config { get; }
     
     public IHttpContextAccessor HttpContextAccessor { get; }
 
@@ -66,7 +70,7 @@ namespace WhatToEat.Services.Scoped
       StorageService storageService,
       EventService eventService,
       IHttpClientFactory httpClient,
-      IConfiguration config,
+      AppConfiguration config,
       IHttpContextAccessor httpContextAccessor)
     {
       LocalStorage = localStorage;
@@ -97,20 +101,34 @@ namespace WhatToEat.Services.Scoped
     public async Task LoginAsync()
     {
       // Read UserId from local storage
-      var localUserInfo = await LocalStorage.GetItemAsync<LocalUserData>(LocalUserData.Key);
+      var localUserInfo = await LocalStorage.GetItemAsync<LocalStorageUserData>(Config.Constants.LocalStorageUserDataKey);
       if (localUserInfo == null)
       {
-        // If not found, create user from Ad Auth endpoint user object & store Id in local storage
-        var userInfo = await QueryUserDataAsync();
-        await StorageService.CreateUserAsync(userInfo);
-        localUserInfo = new LocalUserData { UserId = userInfo.GetUserId() };
-        await LocalStorage.SetItemAsync(LocalUserData.Key, localUserInfo);
+        localUserInfo = await CreateUserAsync();
       }
+      else
+      {
+        UserData = await StorageService.GetUserAsync(localUserInfo.UserId);
+        if (UserData == null)
+          localUserInfo = await CreateUserAsync();
+      };
 
-      UserData = await StorageService.GetUserAsync(localUserInfo.UserId);
+      UserData ??= await StorageService.GetUserAsync(localUserInfo.UserId);
+
       await UpdateUserListAsync();
 
       OnLoginSuccessful?.Invoke();
+    }
+
+    private async Task<LocalStorageUserData> CreateUserAsync()
+    {
+      // Create user from Ad Auth endpoint user object & store Id in local storage
+      var userInfo = await QueryUserDataAsync();
+      await StorageService.CreateUserAsync(userInfo);
+      var localUserInfo = new LocalStorageUserData(UserId: userInfo.GetUserId());
+      await LocalStorage.SetItemAsync(Config.Constants.LocalStorageUserDataKey, localUserInfo);
+      
+      return localUserInfo;
     }
 
     public async Task UpdateUserListAsync()
@@ -123,7 +141,7 @@ namespace WhatToEat.Services.Scoped
       var client = HttpClient.CreateClient();
       AdUserData adUserData;
       client.BaseAddress = new Uri((HttpContextAccessor.HttpContext.Request.IsHttps ? "https://" : "http://") + HttpContextAccessor.HttpContext.Request.Host.Value);
-      var response = await client.GetAsync(Config.GetValue<string>("AppConfig:AdUserInfoPath"));
+      var response = await client.GetAsync(Config.Constants.AdUserInfoPath);
       if (response.StatusCode == HttpStatusCode.OK)
       {
         adUserData = (await response.Content.ReadFromJsonAsync<AdUserData[]>())!.First();

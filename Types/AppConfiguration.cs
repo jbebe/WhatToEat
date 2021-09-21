@@ -14,6 +14,8 @@ namespace WhatToEat.Types
       public int PollIntervalSec { get; set; }
 
       public int PresenceExpirationMultiplier { get; set; }
+
+      public string LocalStorageUserDataKey { get; set; }
     }
 
     public class AppSecrets
