@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Configuration;
-using WhatToEat.Types;
+using WhatToEat.Types.TableEntities;
 
 namespace WhatToEat.Services.Scoped
 {

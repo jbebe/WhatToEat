@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace WhatToEat.Types
+namespace WhatToEat.Types.TableEntities
 {
   public class UserChoice: TableEntityBase
   {

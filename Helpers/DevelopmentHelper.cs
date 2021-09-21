@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using WhatToEat.Services.Scoped;
-using WhatToEat.Types;
+using WhatToEat.Types.Enums;
+using WhatToEat.Types.TableEntities;
 
 namespace WhatToEat.Helpers
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace WhatToEat.Types
+namespace WhatToEat.Types.TableEntities
 {
   public class LocalUserData
   {

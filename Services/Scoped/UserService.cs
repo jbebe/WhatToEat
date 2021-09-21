@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using WhatToEat.Helpers;
 using WhatToEat.Services.Singleton;
-using WhatToEat.Types;
+using WhatToEat.Types.TableEntities;
 
 namespace WhatToEat.Services.Scoped
 {
