@@ -41,8 +41,8 @@
 #pragma warning disable CS4014
     InvokeAsync(async () =>
     {
-      Restaurants = await StorageService.GetRestaurantsAsync(forceReload: true);
-      var choicesEntity = await StorageService.GetSelectionAsync(UserService.UserData.GetUserId());
+      Restaurants = await UserService.GetRestaurantsAsync(forceReload: true);
+      var choicesEntity = await StorageService.GetVoteAsync(UserService.UserData.GetUserId());
       if (choicesEntity != null)
       {
         var choices = choicesEntity.GetChoicesTyped();
@@ -62,7 +62,7 @@
 
   private async Task OnSelectedItemChangedAsync(IEnumerable<RestaurantData> changed)
   {
-    await UserService.SetSelectionAsync(changed.Select(x => x.RowKey).ToList());
+    await UserService.SetVoteAsync(changed.Select(x => x.RowKey).ToList());
   }
 
   private static MarkupString GetPaymentMethodString(PaymentMethod method, string separator)

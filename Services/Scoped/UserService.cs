@@ -21,11 +21,13 @@ namespace WhatToEat.Services.Scoped
 
     public UserData UserData { get; set; }
 
-    public UserChoice UserChoice { get;set; }
+    public UserVote UserChoice { get;set; }
 
     public Dictionary<string, UserData> Users { get; set; } = new();
 
     public bool IsLoggedIn => UserData != null;
+
+    private List<RestaurantData> Restaurants { get; set; }
 
     #endregion
 
@@ -142,12 +144,12 @@ namespace WhatToEat.Services.Scoped
       return new UserData(userId, fullName);
     }
 
-    public async Task SetSelectionAsync(List<string> ids)
+    public async Task SetVoteAsync(List<string> ids)
     {
       if (!ids.Any())
-        await StorageService.DeleteSelectionAsync(UserData.GetUserId());
+        await StorageService.DeleteVoteAsync(UserData.GetUserId());
       else
-        await StorageService.UpsertSelectionAsync(UserData.GetUserId(), ids);
+        await StorageService.UpsertVoteAsync(UserData.GetUserId(), ids);
 
       OnLocalChoiceChanged?.Invoke();
       EventService.CreateMessage(new ChoiceChanged{ Type = BroadcastEventType.ChoiceChanged });
@@ -155,7 +157,7 @@ namespace WhatToEat.Services.Scoped
 
     public async Task<List<string>> GetChoicesAsync()
     {
-      UserChoice = await StorageService.GetSelectionAsync(UserData.GetUserId());
+      UserChoice = await StorageService.GetVoteAsync(UserData.GetUserId());
       if (UserChoice == null)
         return new List<string>();
 
@@ -165,10 +167,9 @@ namespace WhatToEat.Services.Scoped
         .Select(x => x.Name).ToList();
     }
 
-    public async Task<List<UserChoice>> GetAllChoicesAsync(bool todayOnly)
+    public async Task<List<UserVote>> GetAllChoicesAsync(bool todayOnly)
     {
-      var timestamp = todayOnly ? StorageService.GetStorageDateString() : null;
-      var choices = await StorageService.GetSelectionsAsync(timestamp);
+      var choices = await StorageService.GetVotesAsync(todayOnly ? DateTime.UtcNow : null);
       return choices;
     }
 
@@ -180,6 +181,16 @@ namespace WhatToEat.Services.Scoped
     public void SendRestaurantUpdate()
     {
       EventService.CreateMessage(new RestaurantChanged());
+    }
+
+    public async Task<List<RestaurantData>> GetRestaurantsAsync(bool forceReload = false)
+    {
+      if (Restaurants == null || forceReload)
+      {
+        Restaurants = await StorageService.GetRestaurantsAsync();
+      }
+
+      return Restaurants;
     }
   }
 }

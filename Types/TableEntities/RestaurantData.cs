@@ -4,7 +4,7 @@ namespace WhatToEat.Types.TableEntities
 {
   public class RestaurantData: TableEntityBase
   {
-    public const string PrimaryKey = "restaurant";
+    public const string PartitionKeyValue = "restaurant";
 
     public string Name { get; set; }
 
@@ -12,7 +12,7 @@ namespace WhatToEat.Types.TableEntities
 
     public RestaurantData(){}
 
-    public RestaurantData(string restaurantId, string name, PaymentMethod paymentMethod): base(PrimaryKey, restaurantId)
+    public RestaurantData(string restaurantId, string name, PaymentMethod paymentMethod): base(PartitionKeyValue, restaurantId)
     {
       Name = name;
       PaymentMethod = paymentMethod;

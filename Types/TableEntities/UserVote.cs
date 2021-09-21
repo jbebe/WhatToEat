@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace WhatToEat.Types.TableEntities
 {
-  public class UserChoice: TableEntityBase
+  public class UserVote: TableEntityBase
   {
     public const string PartitionKeyPrefix = "choice_";
 
     public string Choices { get; set; }
 
-    public UserChoice()
+    public UserVote()
     {
     }
 
-    public UserChoice(string userId, IEnumerable<string> choiceIds): base(GetPartitionKey(DateTime.UtcNow), userId)
+    public UserVote(string userId, IEnumerable<string> choiceIds): base(GetPartitionKey(DateTime.UtcNow), userId)
     {
       Choices = JsonSerializer.Serialize(choiceIds);
     }
