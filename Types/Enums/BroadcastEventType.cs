@@ -2,7 +2,7 @@
 {
   public enum BroadcastEventType
   {
-    ChoiceChanged,
+    VoteChanged,
     PresenceChanged,
     RestaurantChanged,
   }

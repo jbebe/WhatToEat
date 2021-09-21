@@ -15,8 +15,11 @@
 
 @code { 
 
-  private const int OfflineMultiplier = 4;
-  private const int IntervalSec = 5;
+  [Inject]
+  protected AppConfiguration Config { get; set; }
+
+  [Inject]
+  protected PresenceService PresenceService { get; set; }
 
   class CountdownUserData : UserData
   {
@@ -30,17 +33,18 @@
 
   private Dictionary<string, CountdownUserData> OnlineUsers { get; } = new();
 
-  private Timer Timer { get; } = new(TimeSpan.FromSeconds(IntervalSec).TotalMilliseconds);
+  private Timer Timer { get; set; }
 
   [Inject]
   protected UserService UserService { get; set; }
 
   protected override void OnInitialized()
   {
-    UserService.OnBroadcastPresenceChanged -= OnBroadcastPresenceChangedAsync;
-    UserService.OnBroadcastPresenceChanged += OnBroadcastPresenceChangedAsync;
+    PresenceService.OnBroadcastPresenceChanged -= OnBroadcastPresenceChangedAsync;
+    PresenceService.OnBroadcastPresenceChanged += OnBroadcastPresenceChangedAsync;
+    PresenceService.SendPresence();
 
-    UserService.SendPresence();
+    Timer = new(TimeSpan.FromSeconds(Config.Constants.PollIntervalSec).TotalMilliseconds);
     Timer.Elapsed -= RemotePresenceUpdater;
     Timer.Elapsed += RemotePresenceUpdater;
     Timer.Start();
@@ -48,7 +52,6 @@
 
   private void RemotePresenceUpdater(object _, ElapsedEventArgs __)
   {
-    Console.WriteLine(__.SignalTime);
     var removable = new List<string>();
     foreach (var userId in OnlineUsers.Keys)
     {
@@ -63,7 +66,7 @@
     if (removable.Any())
       InvokeAsync(StateHasChanged);
 
-    UserService.SendPresence();
+    PresenceService.SendPresence();
   }
 
   private async Task OnBroadcastPresenceChangedAsync(PresenceChanged message)
@@ -71,13 +74,13 @@
     var userId = message.UserId;
     if (OnlineUsers.ContainsKey(userId))
     {
-      OnlineUsers[userId].Countdown = OfflineMultiplier;
+      OnlineUsers[userId].Countdown = Config.Constants.PresenceExpirationMultiplier;
     }
     else
     {
       await UserService.UpdateUserListAsync();
       var user = UserService.Users[userId];
-      OnlineUsers.Add(userId, new CountdownUserData(user, OfflineMultiplier));
+      OnlineUsers.Add(userId, new CountdownUserData(user, Config.Constants.PresenceExpirationMultiplier));
 #pragma warning disable CS4014
       InvokeAsync(StateHasChanged);
 #pragma warning restore CS4014
@@ -86,7 +89,7 @@
 
   public void Dispose()
   {
-    UserService.OnBroadcastPresenceChanged -= OnBroadcastPresenceChangedAsync;
+    PresenceService.OnBroadcastPresenceChanged -= OnBroadcastPresenceChangedAsync;
     Timer?.Dispose();
   }
 }

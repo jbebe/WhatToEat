@@ -12,9 +12,9 @@ namespace WhatToEat.Types
     }
   }
 
-  public class ChoiceChanged : BroadcastMessage
+  public class VoteChanged : BroadcastMessage
   {
-    public ChoiceChanged() : base(BroadcastEventType.ChoiceChanged)
+    public VoteChanged() : base(BroadcastEventType.VoteChanged)
     {
     }
   }

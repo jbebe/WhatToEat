@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
+using WhatToEat.Helpers;
 
 namespace WhatToEat.Types
 {
@@ -32,5 +34,13 @@ namespace WhatToEat.Types
 
     [JsonPropertyName("user_id")]
     public string UserId { get; set; }
+
+    public string GetUserId() => UserClaims
+      .Single(x => x.Typ.EndsWith("/emailaddress"))
+      .Val.ToLowerMd5Hash();
+
+    public string GetFullName() => UserClaims
+      .Single(x => x.Typ == "name")
+      .Val;
   }
 }

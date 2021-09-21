@@ -25,6 +25,9 @@
   bool ShowMenu { get; set; } = false;
 
   [Inject]
+  protected RestaurantService RestaurantService { get; set; }
+
+  [Inject]
   protected UserService UserService { get; set; }
 
   protected override void OnInitialized()
@@ -48,6 +51,6 @@
     var dialog = DialogService.Show<CreateRestaurantDialog>("New restaurant");
     var restaurant = (await dialog.Result).Data as RestaurantData;
     await StorageService.CreateRestaurantAsync(restaurant);
-    UserService.SendRestaurantUpdate();
+    RestaurantService.SendRestaurantUpdate();
   }
 }

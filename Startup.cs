@@ -37,6 +37,9 @@ namespace WhatToEat
       services.AddScoped<LoggerService>();
       services.AddScoped<StorageService>();
       services.AddScoped<UserService>();
+      services.AddScoped<VoteService>();
+      services.AddScoped<RestaurantService>();
+      services.AddScoped<PresenceService>();
       services.Configure<RazorPagesOptions>(options => options.RootDirectory = "/Views/Pages");
     }
 

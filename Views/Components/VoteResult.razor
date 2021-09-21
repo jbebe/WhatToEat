@@ -38,21 +38,24 @@
   [Inject]
   protected UserService UserService { get; set; }
 
+  [Inject]
+  protected VoteService VoteService { get; set; }
+
   protected override async Task OnInitializedAsync()
   {
-    UserService.OnBroadcastChoiceChanged -= OnBroadcastChoiceChangedAsync;
-    UserService.OnBroadcastChoiceChanged += OnBroadcastChoiceChangedAsync;
+    VoteService.OnBroadcastVoteChanged -= OnBroadcastVoteChangedAsync;
+    VoteService.OnBroadcastVoteChanged += OnBroadcastVoteChangedAsync;
 
-    await UpdateChoicesAsync();
+    await UpdateVotesAsync();
   }
 
-  public async Task UpdateChoicesAsync()
+  public async Task UpdateVotesAsync()
   {
     var restaurants = (await StorageService.GetRestaurantsAsync()).ToDictionary(x => x.GetId());
-    var allUsersChoices = await UserService.GetAllChoicesAsync(todayOnly: true);
+    var allUsersVotes = await VoteService.GetVotesAsync(todayOnly: true);
 
-    Results = allUsersChoices
-      .SelectMany(x => x.GetChoicesTyped()) // get flat array of restaurant ids
+    Results = allUsersVotes
+      .SelectMany(x => x.GetVotesTyped()) // get flat array of restaurant ids
       .GroupBy(x => x) // group by ids, making lists of the same ids
       .ToDictionary(x => x.Key, x => x.Count()) // aggregate these same ids by count, create id => count map
       .GroupBy(x => x.Value, x => x.Key) // group by count, collect every id that has the same count
@@ -63,9 +66,9 @@
       .ToList();
   }
 
-  public async Task OnBroadcastChoiceChangedAsync(BroadcastMessage message)
+  public async Task OnBroadcastVoteChangedAsync(BroadcastMessage message)
   {
-    await UpdateChoicesAsync();
+    await UpdateVotesAsync();
 #pragma warning disable CS4014
     InvokeAsync(StateHasChanged);
 #pragma warning restore CS4014
@@ -73,6 +76,6 @@
 
   public void Dispose()
   {
-    UserService.OnBroadcastChoiceChanged -= OnBroadcastChoiceChangedAsync;
+    VoteService.OnBroadcastVoteChanged -= OnBroadcastVoteChangedAsync;
   }
 }

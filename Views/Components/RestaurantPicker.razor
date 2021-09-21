@@ -27,42 +27,47 @@
   [Inject]
   protected UserService UserService { get; set; }
 
+  [Inject]
+  protected VoteService VoteService { get; set; }
+
+  [Inject]
+  protected RestaurantService RestaurantService { get; set; }
+
   protected override async Task OnInitializedAsync()
   {
     await UpdateTableAsync();
 
-    UserService.OnBroadcastRestaurantChanged -= UpdateTableAsync;
-    UserService.OnBroadcastRestaurantChanged += UpdateTableAsync;
+    RestaurantService.OnBroadcastRestaurantChanged -= UpdateTableAsync;
+    RestaurantService.OnBroadcastRestaurantChanged += UpdateTableAsync;
   }
 
-#pragma warning disable CS1998
-  private async Task UpdateTableAsync()
+  private Task UpdateTableAsync()
   {
-#pragma warning disable CS4014
     InvokeAsync(async () =>
     {
-      Restaurants = await UserService.GetRestaurantsAsync(forceReload: true);
-      var choicesEntity = await StorageService.GetVoteAsync(UserService.UserData.GetUserId());
-      if (choicesEntity != null)
+      Restaurants = await RestaurantService.GetRestaurantsAsync(forceReload: true);
+      var voteEntity = await StorageService.GetVoteAsync(UserService.UserData.GetUserId());
+      if (voteEntity != null)
       {
-        var choices = choicesEntity.GetChoicesTyped();
+        var votes = voteEntity.GetVotesTyped();
         // Warning BL0005: As long as Table doesn't have a SetSelectedItems method, we don't have a choice
 #pragma warning disable BL0005
-        Table.SelectedItems = new HashSet<RestaurantData>(Restaurants.Where(x => choices.Contains(x.RowKey)));
+        Table.SelectedItems = new HashSet<RestaurantData>(Restaurants.Where(x => votes.Contains(x.RowKey)));
+#pragma warning restore BL0005
       }
-
+#pragma warning disable BL0005
       Table.Items = Restaurants;
 #pragma warning restore BL0005
 
       StateHasChanged();
     });
-#pragma warning restore CS4014
+
+    return Task.CompletedTask;
   }
-#pragma warning restore CS1998
 
   private async Task OnSelectedItemChangedAsync(IEnumerable<RestaurantData> changed)
   {
-    await UserService.SetVoteAsync(changed.Select(x => x.RowKey).ToList());
+    await VoteService.SetVoteAsync(changed.Select(x => x.RowKey).ToList());
   }
 
   private static MarkupString GetPaymentMethodString(PaymentMethod method, string separator)
@@ -81,6 +86,6 @@
 
   public void Dispose()
   {
-    UserService.OnBroadcastRestaurantChanged -= UpdateTableAsync;
+    RestaurantService.OnBroadcastRestaurantChanged -= UpdateTableAsync;
   }
 }

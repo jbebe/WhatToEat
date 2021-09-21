@@ -10,8 +10,8 @@ namespace WhatToEat.Services.Scoped
   {
     public async Task UpsertVoteAsync(string userId, IEnumerable<string> restaurantIds)
     {
-      var userChoice = new UserVote(userId, restaurantIds);
-      await Table.UpsertEntityAsync(userChoice, TableUpdateMode.Replace);
+      var userVote = new UserVote(userId, restaurantIds);
+      await Table.UpsertEntityAsync(userVote, TableUpdateMode.Replace);
     }
 
     public Task DeleteVoteAsync(string userId) =>
@@ -28,14 +28,14 @@ namespace WhatToEat.Services.Scoped
       if (queryAllVotes)
       {
         result = await GetEntitiesAsync<UserVote>(c =>
-          c.PartitionKey.CompareTo("choice_") >= 0 &&
-          c.PartitionKey.CompareTo("choice_z") < 0);
+          c.PartitionKey.CompareTo($"{UserVote.PartitionKeyPrefix}") >= 0 &&
+          c.PartitionKey.CompareTo($"{UserVote.PartitionKeyPrefix}z") < 0);
       } 
       else
       {
         var dateString = GetStorageDateString(day.Value);
         result = await GetEntitiesAsync<UserVote>(c =>
-          dateString != null && c.PartitionKey == $"choice_{dateString}");
+          dateString != null && c.PartitionKey == $"{UserVote.PartitionKeyPrefix}{dateString}");
       }
 
       return result;

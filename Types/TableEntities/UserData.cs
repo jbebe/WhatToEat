@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
-namespace WhatToEat.Types.TableEntities
+﻿namespace WhatToEat.Types.TableEntities
 {
   public class UserData: TableEntityBase
   {
