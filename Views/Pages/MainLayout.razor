@@ -7,6 +7,24 @@
 <MudLayout>
   <Header />
   <MudMainContent>
-    @Body
+    @if (UserService.IsLoggedIn)
+    {
+      @Body
+    }
   </MudMainContent>
 </MudLayout>
+
+@code {
+
+  [Inject]
+  protected UserService UserService { get; set; }
+
+  protected override async Task OnAfterRenderAsync(bool firstRun)
+  {
+    if (!UserService.IsLoggedIn)
+    {
+      await UserService.LoginAsync();
+      StateHasChanged();
+    }
+  }
+}
