@@ -45,7 +45,7 @@
   {
     InvokeAsync(async () =>
     {
-      Restaurants = await RestaurantService.GetRestaurantsAsync(forceReload: true);
+      Restaurants = (await RestaurantService.GetRestaurantsAsync(forceReload: true)).OrderBy(x => x.Name).ToList();
       var voteEntity = await StorageService.GetVoteAsync(UserService.UserData.GetUserId());
       if (voteEntity != null)
       {

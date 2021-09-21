@@ -3,21 +3,24 @@
 <MudContainer>
   <MudText Typo="Typo.h5" Class="mx-2 mt-4 mb-2">Result</MudText>
   <MudList Class="pt-0">
-    @foreach (var (count, ids) in Results)
+    @if (Results.Any())
     {
-      <MudListItem Class="pa-0 ma-0">
-        <MudPaper Class="py-2 px-3">
-          <MudText Style="font-weight: 600">@count vote@(count != 1 ? "s" : ""):</MudText>
-          <MudText Typo="Typo.body2">
-            @foreach (var restaurant in ids)
-            {
-              <MudChip Variant="Variant.Outlined" Color="@(UiHelper.PickEnumValueByHash<Color>(restaurant.GetId()))">@restaurant.Name</MudChip>
-            }
-          </MudText>
-        </MudPaper>
-      </MudListItem>
+      @foreach (var (idx, count, restaurants) in ResultsWithIndex)
+      {
+        <MudListItem Class="pa-0 ma-0">
+          <MudPaper Class="py-2 px-3" Style="@(idx == 0 ? "background-color: #fff4b6" : "")">
+            <MudText Style="font-weight: 600">@count vote@(count != 1 ? "s" : ""):</MudText>
+            <MudText Typo="Typo.body2">
+              @foreach (var restaurant in restaurants)
+              {
+                <MudChip Variant="Variant.Outlined" Color="@(UiHelper.PickEnumValueByHash<Color>(restaurant.GetId()))">@restaurant.Name</MudChip>
+              }
+            </MudText>
+          </MudPaper>
+        </MudListItem>
+      }
     }
-    @if (!Results.Any())
+    else
     {
       <MudListItem Class="pa-0 ma-0">
         <MudPaper Class="py-2 px-3">
@@ -25,12 +28,22 @@
         </MudPaper>
       </MudListItem>
     }
-    </MudList>
+  </MudList>
 </MudContainer>
 
 @code {
 
   private List<(int Count, List<RestaurantData> Restaurants)> Results { get; set; } = new();
+
+  private IEnumerable<(int Idx, int Count, List<RestaurantData> Restaurants)> ResultsWithIndex =>
+    Enumerable.Range(0, Results.Count).Select(x =>
+    {
+      var result = Results[x];
+      return (x, result.Count, result.Restaurants);
+    });
+
+  [Inject]
+  protected AppConfiguration AppConfiguration { get; set; }
 
   [Inject]
   protected StorageService StorageService { get; set; }
@@ -61,8 +74,8 @@
       .GroupBy(x => x.Value, x => x.Key) // group by count, collect every id that has the same count
       .ToDictionary(x => x.Key) // join ids by comma, create count => id list
       .OrderByDescending(x => x.Key) // order key-pairs by count descending
-      .Take(3) // select the 3 most loved restaurant-list
-      .Select(x => (x.Key, x.Value.Select(y => restaurants[y]).ToList()))
+      .Take(AppConfiguration.Constants.VoteResultLimit) // select the N most voted restaurant
+      .Select(x => (x.Key, x.Value.Select(y => restaurants[y]).ToList())) // Get restaurant object for every id
       .ToList();
   }
 

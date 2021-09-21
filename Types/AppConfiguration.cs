@@ -16,6 +16,8 @@ namespace WhatToEat.Types
       public int PresenceExpirationMultiplier { get; set; }
 
       public string LocalStorageUserDataKey { get; set; }
+
+      public int VoteResultLimit { get; set; }
     }
 
     public class AppSecrets
