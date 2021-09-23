@@ -8,6 +8,8 @@ using MudBlazor.Services;
 using Blazored.LocalStorage;
 using WhatToEat.Helpers;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using WhatToEat.Services.Singleton;
 using WhatToEat.Services.Scoped;
 using WhatToEat.Types;
@@ -40,11 +42,20 @@ namespace WhatToEat
       services.AddScoped<VoteService>();
       services.AddScoped<RestaurantService>();
       services.AddScoped<PresenceService>();
-      services.Configure<RazorPagesOptions>(options => options.RootDirectory = "/Views/Pages");
+      services.Configure<RazorPagesOptions>(options =>
+      {
+        options.RootDirectory = "/Views/Pages";
+        options.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
+      });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+      app.UseForwardedHeaders(new ForwardedHeadersOptions
+      {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+      });
+    
       if (env.IsDevelopment())
       {
         app.UseDeveloperExceptionPage();
