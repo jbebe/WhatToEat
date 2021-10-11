@@ -51,6 +51,8 @@ namespace WhatToEat
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+      app.UsePathBase("/whattoeat");
+
       app.UseForwardedHeaders(new ForwardedHeadersOptions
       {
         ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
