@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System.Text.RegularExpressions;
 using WhatToEat.Types.Enums;
 
 namespace WhatToEat.Types
@@ -34,8 +35,9 @@ namespace WhatToEat.Types
       Constants = configuration.GetSection(nameof(Constants)).Get<AppConstants>();
       Secrets = configuration.GetSection(nameof(Secrets)).Get<AppSecrets>();
       var connectionString = System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_AZURE_STORAGE_CONNECTION_STRING");
-      System.Console.WriteLine($"Connection string: {(connectionString == null ? "<null>" : "*****")}");
-      if (connectionString != null)
+      var isEnvEmpty = string.IsNullOrWhiteSpace(connectionString);
+      System.Console.WriteLine($"Connection string: {(isEnvEmpty ? "<null>" : Regex.Match(connectionString, "^(.{4}).*(.{4})$").Groups[1].ToString() + "..." + Regex.Match(connectionString, "^(.{4}).*(.{4})$").Groups[2])}");
+      if (!isEnvEmpty)
         Secrets = new AppSecrets { StorageConnectionString = connectionString };
     }
   }
