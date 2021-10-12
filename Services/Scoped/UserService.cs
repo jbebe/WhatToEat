@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Http;
+using Microsoft.JSInterop;
 using WhatToEat.Helpers;
 using WhatToEat.Types;
 using WhatToEat.Types.TableEntities;
@@ -38,6 +38,8 @@ namespace WhatToEat.Services.Scoped
     
     public IHttpContextAccessor HttpContextAccessor { get; }
 
+    public IJSRuntime JsRuntime { get; }
+
     #endregion
 
     #region App events
@@ -51,13 +53,15 @@ namespace WhatToEat.Services.Scoped
       StorageService storageService,
       IHttpClientFactory httpClient,
       AppConfiguration config,
-      IHttpContextAccessor httpContextAccessor)
+      IHttpContextAccessor httpContextAccessor,
+      IJSRuntime jsRuntime)
     {
       LocalStorage = localStorage;
       StorageService = storageService;
       HttpClient = httpClient;
       Config = config;
       HttpContextAccessor = httpContextAccessor;
+      JsRuntime = jsRuntime;
     }
 
     public async Task LoginAsync()
@@ -86,13 +90,13 @@ namespace WhatToEat.Services.Scoped
     {
       // Create user from Ad Auth endpoint user object
       var userInfo = await QueryAdUserDataAsync();
-      
+
       await StorageService.CreateUserAsync(userInfo);
 
       // Store id in local storage
       var localUserInfo = new LocalStorageUserData(UserId: userInfo.GetUserId());
       await LocalStorage.SetItemAsync(Config.Constants.LocalStorageUserDataKey, localUserInfo);
-      
+
       return localUserInfo;
     }
 
@@ -103,11 +107,8 @@ namespace WhatToEat.Services.Scoped
     {
       if (Config.Constants.Environment == Types.Enums.AppEnvironment.Development)
         return DevelopmentHelper.CreateTestUserData();
-      
-      var client = HttpClient.CreateClient();
-      client.BaseAddress = new Uri($"https://{HttpContextAccessor.HttpContext.Request.Host.Value}");
-      var response = await client.GetAsync(Config.Constants.AdUserInfoPath);
-      var adUserData = (await response.Content.ReadFromJsonAsync<AdUserData[]>())!.First();
+
+      var adUserData = (await JsRuntime.InvokeAsync<AdUserData[]>("getAdObjectAsync")).First();
       return new UserData(adUserData.GetUserId(), adUserData.GetFullName());
     }
   }
