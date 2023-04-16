@@ -1,14 +1,17 @@
 Param(
     [Parameter(Position = 0, Mandatory)]
-    [ValidateSet("Build","Deploy")]
+    [ValidateSet("DevInit", "Build", "Deploy")]
 	[string] $Type
 )
 
 Switch ($Type)
 {
     "DevInit" {
+        pushd "$PSScriptRoot"
+        gci .\Migrations\ -Exclude ".gitignore" | rm
         dotnet ef migrations add InitialMigration
         dotnet ef database update
+        popd
     }
     "Build" {
         pushd "$(PSScriptRoot)\.."
