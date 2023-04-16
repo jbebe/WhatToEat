@@ -1,5 +1,6 @@
 using MudBlazor.Services;
 using WhatToEat.App.Server;
+using WhatToEat.App.Services;
 using WhatToEat.App.Storage;
 using WhatToEat.App.Storage.Repositories;
 
@@ -14,6 +15,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddMudServices();
 builder.Services.Configure<WhatToEatSettings>(builder.Configuration.GetSection("AppSettings"));
 builder.Services.AddSingleton<StorageContext>();
+builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<RestaurantRepository>();
 builder.Services.AddScoped<VoteRepository>();

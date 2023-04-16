@@ -1,0 +1,44 @@
+﻿@using WhatToEat.App.Common;
+@foreach (var method in Value)
+{
+	<MudTooltip Text="@(method.ToString("G"))">
+	@if (method == PaymentMethod.Cash)
+	{
+		<MudChip Variant="Variant.Text" Style="@CashChipStyle" Size="Size.Small" Label="false">
+			<MudIcon Icon="@Icons.Material.Filled.Money" Size="Size.Small" Style="@CashIconStyle" />
+		</MudChip>
+	}
+	@if (method == PaymentMethod.BankCard)
+	{
+		<MudChip Variant="Variant.Text" Style="@BankCardChipStyle" Size="Size.Small" Label="false">
+			<MudIcon Icon="@Icons.Material.Filled.CreditCard" Size="Size.Small" Style="@BankCardIconStyle" />
+		</MudChip>
+	}
+	@if (method == PaymentMethod.SzepCard)
+	{
+		<MudChip Variant="Variant.Text" Style="@SzepChipStyle" Size="Size.Small" Label="false">
+			SZEP
+		</MudChip>
+	}
+		</MudTooltip>
+}
+
+@code {
+	[Parameter]
+	public List<PaymentMethod> Value { get; set; } = default!;
+
+	private readonly string CashChipStyle = 
+		$"height:auto;border-radius:3px;padding:0 1px;background-color:{Colors.Yellow.Lighten3};";
+
+	private readonly string CashIconStyle = 
+		$"height:0.9em;color:{Colors.Green.Default};";
+
+	private readonly string BankCardChipStyle = 
+		$"height:auto;border-radius:3px;padding:0 1px;background-color:{Colors.LightBlue.Lighten5};";
+
+	private readonly string BankCardIconStyle = $"height:0.9em;color:{Colors.Blue.Darken2};";
+
+	private readonly string SzepChipStyle = 
+		$"height:auto;border-radius:3px;padding:1px 3px;font-size:10px;" + 
+		$"background-color:{Colors.LightGreen.Darken2};font-weight:bold;color:{Colors.Shades.White}";
+}

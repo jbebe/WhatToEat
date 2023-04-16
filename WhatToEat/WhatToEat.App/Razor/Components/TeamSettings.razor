@@ -3,14 +3,17 @@
 @using WhatToEat.App.Storage.Repositories;
 @inherits BaseComponent;
 
-<h3>Settings</h3>
+<span class="mt-3"></span>
 
-<MudPaper Class="m-2 p-2">
+<MudPaper Class="m-3 p-2">
 	<strong>Team members:</strong>
 	<MudList Clickable="true">
-		<MudListItem Text="Admin" Icon="@Icons.Material.Filled.VerifiedUser" />
+		@foreach (var user in Admins)
+		{
+			<MudListItem Text="@user.Name" Icon="@Icons.Material.Filled.VerifiedUser" />
+		}
 		<MudDivider />
-		@foreach (var user in Users)
+		@foreach (var user in Members)
 		{
 			<MudListItem Text="@user.Name" Icon="@Icons.Material.Filled.Person" />
 		}
@@ -19,6 +22,10 @@
 
 @code {
 	List<User> Users { get; set; } = new();
+
+	IEnumerable<User> Members => Users.Where(x => !x.Admin);
+
+	IEnumerable<User> Admins => Users.Where(x => x.Admin);
 
 	[Inject]
 	UserRepository UserRepository { get; set; } = default!;

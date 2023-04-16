@@ -1,27 +1,23 @@
-﻿using Microsoft.EntityFrameworkCore;
-using WhatToEat.App.Common;
+﻿using WhatToEat.App.Common;
+using WhatToEat.App.Storage.Dtos;
 using WhatToEat.App.Storage.Model;
 
 namespace WhatToEat.App.Storage.Repositories
 {
-    public class UserRepository: RepositoryBase<User>
+	public class UserRepository: RepositoryBase<User>
     {
         public UserRepository(StorageContext context): base(context) { }
 
-        public async Task<User> CreateAsync(string name, CancellationToken cancellationToken)
+        public async Task<User> CreateAsync(CreateUser createUser, CancellationToken cancellationToken)
         {
             var user = new User { 
                 Id = ModelHelpers.GenerateId(), 
-                Name = name 
+                Name = createUser.Name,
+                Admin = createUser.Admin,
             };
-			await AddAsync(user, cancellationToken);
+			await CreateOrUpdateAsync(user, x => x.Id == user.Id, null, cancellationToken);
             
             return user;
 		}
-
-        public async Task<List<User>> GetAllAsync(CancellationToken cancellationToken)
-        {
-            return await Context.Users.ToListAsync(cancellationToken);
-        }
     }
 }

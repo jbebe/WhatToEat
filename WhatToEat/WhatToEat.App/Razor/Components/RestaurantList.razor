@@ -1,6 +1,73 @@
-﻿@using WhatToEat.App.Razor.Internal;
+﻿@using WhatToEat.App.Common;
+@using WhatToEat.App.Razor.Internal;
+@using WhatToEat.App.Services;
+@using WhatToEat.App.Storage.Dtos;
 @using WhatToEat.App.Storage.Model;
 @using WhatToEat.App.Storage.Repositories;
 @inherits BaseComponent;
 
-<h3>RestaurantList</h3>
+<MudText Typo="Typo.h5" Class="mb-4">Restaurants</MudText>
+
+<MudTable Items="@Restaurants" Dense Hover Breakpoint="Breakpoint.Sm" Loading="@Loading" LoadingProgressColor="Color.Info"
+		  @ref="TableRef" T="Restaurant" MultiSelection SelectOnRowClick
+		  SelectedItemsChanged="@((HashSet<Restaurant> changed) => OnSelectedItemsChangedAsync(changed))">
+	<HeaderContent>
+		<MudTh>Name</MudTh>
+		<MudTh>Payment method</MudTh>
+	</HeaderContent>
+	<RowTemplate>
+		<MudTd DataLabel="Name">@context.Name</MudTd>
+		<MudTd DataLabel="PaymentMethod">
+			<PaymentMethodList Value="@context.PaymentMethods" />
+		</MudTd>
+	</RowTemplate>
+</MudTable>
+
+@code {
+	List<Restaurant> Restaurants { get; set; } = new();
+
+	bool Loading { get; set; } = true;
+
+	MudTable<Restaurant>? TableRef;
+
+	Vote? Vote = null;
+
+	[Inject]
+	RestaurantRepository RestaurantRepository { get; set; } = default!;
+
+	[Inject]
+	VoteRepository VoteRepository { get; set; } = default!;
+
+	[Inject]
+	SessionService SessionService { get; set; } = default!;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await SessionService.LoginAsync(CancellationToken);
+		Restaurants = await RestaurantRepository.GetAllAsync(CancellationToken);
+		Vote = await VoteRepository.GetAsync(SessionService.User, CancellationToken);
+	}
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		Loading = false;
+		if (firstRender)
+		{
+			if (Vote != null)
+			{
+#pragma warning disable BL0005
+				TableRef!.SelectedItems = Restaurants.Where(x => Vote.RestaurantIds.Contains(x.Id)).ToHashSet();
+#pragma warning restore BL0005
+			}
+		}
+		base.OnAfterRender(firstRender);
+	}
+
+	void OnSelectedItemsChangedAsync(HashSet<Restaurant> selectedItems)
+	{
+		// Blazor waits for this method if awaited, even though we call it like a regular function
+#pragma warning disable CS4014
+		VoteRepository.CreateOrUpdateAsync(SessionService.User, selectedItems.ToList(), CancellationToken);
+#pragma warning restore CS4014
+	}
+}

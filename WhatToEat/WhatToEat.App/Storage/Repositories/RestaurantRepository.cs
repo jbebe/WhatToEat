@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using WhatToEat.App.Common;
+﻿using WhatToEat.App.Common;
 using WhatToEat.App.Storage.Model;
 
 namespace WhatToEat.App.Storage.Repositories
@@ -15,14 +14,9 @@ namespace WhatToEat.App.Storage.Repositories
 				Name = name,
 				PaymentMethods = paymentMethods.ToList()
 			};
-			await AddAsync(restaurant, cancellationToken);
+			await CreateOrUpdateAsync(restaurant, x => x.Id == restaurant.Id, null, cancellationToken);
 
 			return restaurant;
-		}
-
-		public async Task<List<Restaurant>> GetAllAsync(CancellationToken cancellationToken)
-		{
-			return await Context.Restaurants.ToListAsync(cancellationToken);
 		}
 	}
 }

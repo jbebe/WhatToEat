@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WhatToEat.App.Storage.Model;
 
@@ -12,7 +11,6 @@ public class User : IEntityTypeConfiguration<User>
 
 	public List<Vote> Votes { get; set; } = default!;
 
-	[NotMapped]
 	public bool Admin { get; set; }
 
 	public void Configure(EntityTypeBuilder<User> builder)
