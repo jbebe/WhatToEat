@@ -6,7 +6,10 @@ using WhatToEat.App.Storage.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages(opts =>
+{
+    opts.RootDirectory = "/Razor/Internal";
+});
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMudServices();
 builder.Services.Configure<WhatToEatSettings>(builder.Configuration.GetSection("AppSettings"));
@@ -27,5 +30,5 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseRouting();
 app.MapBlazorHub();
-app.MapFallbackToPage("/_Host");
+app.MapFallbackToPage("/Html");
 app.Run();
