@@ -1,7 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.Options;
-using System.Data.Common;
 using WhatToEat.App.Server;
 using WhatToEat.App.Storage.Model;
 
@@ -30,30 +27,13 @@ public class StorageContext : DbContext
     {
         builder.ApplyConfigurationsFromAssembly(typeof(Program).Assembly);
     }
-}
 
-class UserConfiguration : IEntityTypeConfiguration<User>
-{
-    public void Configure(EntityTypeBuilder<User> builder)
-    {
-        builder.HasKey(x => x.Id);
-    }
-}
-
-class VoteConfiguration : IEntityTypeConfiguration<Vote>
-{
-    public void Configure(EntityTypeBuilder<Vote> builder)
-    {
-        builder.HasKey(x => x.Date);
-        builder.HasOne(x => x.User);
-        builder.HasMany(x => x.Restaurants);
-    }
-}
-
-class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
-{
-    public void Configure(EntityTypeBuilder<Restaurant> builder)
-    {
-        builder.HasKey(x => x.Id);
-    }
+	public DbSet<T> GetDbSet<T>() where T : class => 
+        (typeof(T).Name switch
+	    {
+		    nameof(User) => Users as DbSet<T>,
+		    nameof(Restaurant) => Restaurants as DbSet<T>,
+		    nameof(Vote) => Votes as DbSet<T>,
+		    _ => throw new ArgumentOutOfRangeException(nameof(T))
+	    })!;
 }

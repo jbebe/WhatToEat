@@ -1,0 +1,30 @@
+﻿@using WhatToEat.App.Pages;
+@using WhatToEat.App.Storage.Model;
+@using WhatToEat.App.Storage.Repositories;
+@inherits BaseComponent;
+
+<h3>Settings</h3>
+
+<MudPaper Class="m-2 p-2">
+	<strong>Team members:</strong>
+	<MudList Clickable="true">
+		<MudListItem Text="Admin" Icon="@Icons.Material.Filled.VerifiedUser" />
+		<MudDivider />
+		@foreach (var user in Users)
+		{
+			<MudListItem Text="@user.Name" Icon="@Icons.Material.Filled.Person" />
+		}
+	</MudList>
+</MudPaper>
+
+@code {
+	List<User> Users { get; set; } = new();
+
+	[Inject]
+	UserRepository UserRepository { get; set; } = default!;
+
+	protected override async Task OnInitializedAsync()
+	{
+		Users = await UserRepository.GetAllAsync(CancellationToken);
+	}
+}

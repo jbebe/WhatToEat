@@ -12,11 +12,13 @@ builder.Services.AddMudServices();
 builder.Services.Configure<WhatToEatSettings>(builder.Configuration.GetSection("AppSettings"));
 builder.Services.AddSingleton<StorageContext>();
 builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<RestaurantRepository>();
+builder.Services.AddScoped<VoteRepository>();
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
-    app.InitDummyDatabase();
+    await app.InitDummyDatabaseAsync();
 }
 if (!app.Environment.IsDevelopment())
 {

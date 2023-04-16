@@ -1,0 +1,14 @@
+﻿@implements IDisposable
+
+@code
+{
+    private CancellationTokenSource CtSource = new();
+
+    protected CancellationToken CancellationToken => CtSource.Token;
+
+    public void Dispose()
+    {
+        CtSource.Cancel();
+        CtSource.Dispose();
+    }
+}

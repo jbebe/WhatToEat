@@ -1,10 +1,12 @@
 ﻿@page "/"
+@using WhatToEat.App.Storage.Model;
+@using WhatToEat.App.Storage.Repositories;
 
 <PageTitle>What To Eat</PageTitle>
 
 <MudGrid Class="top-section">
 	<MudItem xs="12" sm="6" md="6">
-		Restaurant picker
+		<RestaurantList />
 	</MudItem>
 	<MudItem xs="12" sm="6" md="6">
 		Vote result

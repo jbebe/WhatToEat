@@ -8,6 +8,7 @@ Switch ($Type)
 {
     "DevInit" {
         pushd "$PSScriptRoot"
+        rm Storage\db.sqlite -ErrorAction Ignore
         gci .\Migrations\ -Exclude ".gitignore" | rm
         dotnet ef migrations add InitialMigration
         dotnet ef database update
