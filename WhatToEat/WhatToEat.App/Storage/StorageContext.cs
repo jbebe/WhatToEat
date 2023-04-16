@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Options;
+using System.Data.Common;
 using WhatToEat.App.Server;
 using WhatToEat.App.Storage.Model;
 
@@ -14,15 +15,15 @@ public class StorageContext : DbContext
 
     public DbSet<Restaurant> Restaurants { get; set; }
     
-    public string DbPath { get; }
+    public string ConnectionString { get; }
 
     public StorageContext(IConfiguration configuration) 
     {
-        DbPath = Path.Join(configuration.Get<WhatToEatSettings>()!.SQLite.ConnectionString, "db.sqlite");
+        ConnectionString = configuration.Get<WhatToEatSettings>()!.SQLite.ConnectionString;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder builder) {
-        builder.UseSqlite($"Data Source=penis.db");
+        builder.UseSqlite(ConnectionString);
     }
     protected override void OnModelCreating(ModelBuilder builder) 
     {
