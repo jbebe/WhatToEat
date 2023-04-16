@@ -22,10 +22,11 @@ public class StorageContext : DbContext
         ConnectionString = configuration.Get<WhatToEatSettings>()!.SQLite.ConnectionString;
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder builder) {
+    protected override void OnConfiguring(DbContextOptionsBuilder builder) 
+    {
         builder.UseSqlite(ConnectionString);
     }
-    protected override void OnModelCreating(ModelBuilder builder) 
+    protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(typeof(Program).Assembly);
     }

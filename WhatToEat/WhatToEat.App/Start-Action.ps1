@@ -6,6 +6,10 @@ Param(
 
 Switch ($Type)
 {
+    "DevInit" {
+        dotnet ef migrations add InitialMigration
+        dotnet ef database update
+    }
     "Build" {
         pushd "$(PSScriptRoot)\.."
         docker image rm bjuhasz/whattoeat:latest | Out-Null
