@@ -1,14 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Text.Json;
 using WhatToEat.App.Common;
+using WhatToEat.App.Storage.Converters;
 
 namespace WhatToEat.App.Storage.Model;
 
 public class Restaurant : IEntityTypeConfiguration<Restaurant>
 {
-    public string Id { get; set; } = default!;
+    public Id<Restaurant> Id { get; set; } = default!;
 
     public string Name { get; set; } = default!;
 
@@ -17,14 +16,7 @@ public class Restaurant : IEntityTypeConfiguration<Restaurant>
     public void Configure(EntityTypeBuilder<Restaurant> builder)
     {
         builder.HasKey(x => x.Id);
-        JsonSerializerOptions opts = null!;
-        builder.Property(p => p.PaymentMethods).HasConversion(
-            x => JsonSerializer.Serialize(x, opts),
-            x => JsonSerializer.Deserialize<List<PaymentMethod>>(x, opts)!,
-            new ValueComparer<List<PaymentMethod>>(
-                (a, b) => !a!.Except(b!).Any() && !b!.Except(a!).Any(),
-                x => x.GetHashCode()
-            )
-        );
+        builder.Property(p => p.Id).AddConverter();
+		builder.Property(p => p.PaymentMethods).AddConverter();
     }
 }

@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
+using WhatToEat.App.Common;
+using WhatToEat.App.Storage.Converters;
 
 namespace WhatToEat.App.Storage.Model;
 
 public class User : IEntityTypeConfiguration<User>
 {
-    public string Id { get; set; } = default!;
+    public Id<User> Id { get; set; } = default!;
 
 	public string Name { get; set; } = default!;
 
@@ -22,5 +24,6 @@ public class User : IEntityTypeConfiguration<User>
 			.HasForeignKey(x => x.UserId)
 			.IsRequired()
 			.OnDelete(DeleteBehavior.Cascade);
+		builder.Property(x => x.Id).AddConverter();
 	}
 }
