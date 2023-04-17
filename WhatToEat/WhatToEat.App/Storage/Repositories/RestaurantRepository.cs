@@ -10,7 +10,7 @@ namespace WhatToEat.App.Storage.Repositories
 		public async Task<Restaurant> CreateAsync(string name, IEnumerable<PaymentMethod> paymentMethods, CancellationToken cancellationToken)
 		{
 			var restaurant = new Restaurant { 
-				Id = ModelHelpers.GenerateId(), 
+				Id = new Id<Restaurant>(),
 				Name = name,
 				PaymentMethods = paymentMethods.ToList()
 			};

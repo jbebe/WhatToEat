@@ -1,4 +1,5 @@
-﻿using WhatToEat.App.Storage.Model;
+﻿using WhatToEat.App.Common;
+using WhatToEat.App.Storage.Model;
 
 namespace WhatToEat.App.Storage.Repositories
 {
@@ -6,13 +7,13 @@ namespace WhatToEat.App.Storage.Repositories
 	{
 		public VoteRepository(StorageContext context): base(context) { }
 
-		public async Task<Vote> CreateOrUpdateAsync(User user, List<Restaurant> restaurants, CancellationToken cancellationToken)
+		public async Task<Vote> CreateOrUpdateAsync(User user, List<Id<Restaurant>> ids, CancellationToken cancellationToken)
 		{
 			var vote = new Vote { 
 				Date = DateTime.UtcNow.Date,
 				User = user,
 				UserId = user.Id,
-				RestaurantIds = restaurants.Select(x => x.Id).ToList(),
+				RestaurantIds = ids,
             };
 			await CreateOrUpdateAsync(vote, x => x.UserId == vote.UserId && x.Date == vote.Date, x =>
 			{

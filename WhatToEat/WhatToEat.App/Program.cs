@@ -13,16 +13,27 @@ builder.Services.AddRazorPages(opts =>
 });
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMudServices();
+
+// Load configurations
 builder.Services.Configure<WhatToEatSettings>(builder.Configuration.GetSection("AppSettings"));
+
+// Singletons
 builder.Services.AddSingleton<StorageContext>();
-builder.Services.AddScoped<SessionService>();
+builder.Services.AddSingleton<BroadcastService>();
+
+// Storage services
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<RestaurantRepository>();
 builder.Services.AddScoped<VoteRepository>();
 
+// Business logic services
+builder.Services.AddScoped<VoteService>();
+builder.Services.AddScoped<SessionService>();
+
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
+    // Init test data
     await app.InitDummyDatabaseAsync();
 }
 if (!app.Environment.IsDevelopment())

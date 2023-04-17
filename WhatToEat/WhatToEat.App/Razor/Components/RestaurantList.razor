@@ -9,7 +9,7 @@
 <MudText Typo="Typo.h5" Class="mb-4">Restaurants</MudText>
 
 <MudTable Items="@Restaurants" Dense Hover Breakpoint="Breakpoint.Sm" Loading="@Loading" LoadingProgressColor="Color.Info"
-		  @ref="TableRef" T="Restaurant" MultiSelection SelectOnRowClick
+		  @ref="TableRef" T="Restaurant" MultiSelection SelectOnRowClick="false"
 		  SelectedItemsChanged="@((HashSet<Restaurant> changed) => OnSelectedItemsChangedAsync(changed))">
 	<HeaderContent>
 		<MudTh>Name</MudTh>
@@ -24,28 +24,30 @@
 </MudTable>
 
 @code {
-	List<Restaurant> Restaurants { get; set; } = new();
-
-	bool Loading { get; set; } = true;
-
-	MudTable<Restaurant>? TableRef;
-
-	Vote? Vote = null;
-
 	[Inject]
 	RestaurantRepository RestaurantRepository { get; set; } = default!;
 
 	[Inject]
-	VoteRepository VoteRepository { get; set; } = default!;
+	VoteService VoteService { get; set; } = default!;
 
 	[Inject]
 	SessionService SessionService { get; set; } = default!;
 
+	IEnumerable<Restaurant> Restaurants => RestaurantMap.Values.OrderBy(x => x.Name);
+
+	Dictionary<Id<Restaurant>, Restaurant> RestaurantMap { get; set; } = new();
+
+	bool Loading { get; set; } = true;
+
+	MudTable<Restaurant> TableRef = default!;
+
+	List<Id<Restaurant>> Votes = default!;
+
 	protected override async Task OnInitializedAsync()
 	{
 		await SessionService.LoginAsync(CancellationToken);
-		Restaurants = await RestaurantRepository.GetAllAsync(CancellationToken);
-		Vote = await VoteRepository.GetAsync(SessionService.User, CancellationToken);
+		RestaurantMap = (await RestaurantRepository.GetAllAsync(CancellationToken)).ToDictionary(x => x.Id);
+		Votes = await VoteService.GetVoteAsync(CancellationToken);
 	}
 
 	protected override void OnAfterRender(bool firstRender)
@@ -53,12 +55,9 @@
 		Loading = false;
 		if (firstRender)
 		{
-			if (Vote != null)
-			{
 #pragma warning disable BL0005
-				TableRef!.SelectedItems = Restaurants.Where(x => Vote.RestaurantIds.Contains(x.Id)).ToHashSet();
+			TableRef.SelectedItems = Votes.Select(x => RestaurantMap[x]).ToHashSet();
 #pragma warning restore BL0005
-			}
 		}
 		base.OnAfterRender(firstRender);
 	}
@@ -67,7 +66,7 @@
 	{
 		// Blazor waits for this method if awaited, even though we call it like a regular function
 #pragma warning disable CS4014
-		VoteRepository.CreateOrUpdateAsync(SessionService.User, selectedItems.ToList(), CancellationToken);
+		VoteService.CastVoteAsync(selectedItems.Select(x => x.Id).ToList(), CancellationToken);
 #pragma warning restore CS4014
 	}
 }

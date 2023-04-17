@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using WhatToEat.App.Storage.Model;
 
 namespace WhatToEat.App.Storage.Repositories
 {

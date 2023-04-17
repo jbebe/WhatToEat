@@ -1,9 +1,8 @@
-﻿namespace WhatToEat.App.Common
+﻿namespace WhatToEat.App.Common;
+
+public enum PaymentMethod
 {
-	public enum PaymentMethod
-	{
-		Cash,
-		BankCard,
-		SzepCard,
-	}
+	Cash,
+	BankCard,
+	SzepCard,
 }

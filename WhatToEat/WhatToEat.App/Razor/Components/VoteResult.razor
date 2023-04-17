@@ -1,0 +1,101 @@
+﻿@using WhatToEat.App.Common;
+@using WhatToEat.App.Server;
+@using WhatToEat.App.Services.Models;
+@using WhatToEat.App.Services;
+@using WhatToEat.App.Storage.Model;
+@using WhatToEat.App.Storage.Repositories;
+@inherits BaseComponent;
+
+<MudContainer>
+	<MudText Typo="Typo.h5" Class="mx-2 mt-4 mb-2">Result</MudText>
+	<MudList Class="pt-0">
+		@if (Results.Any())
+		{
+			@foreach (var (idx, count, restaurants) in ResultsWithIndex)
+			{
+				<MudListItem Class="pa-0 ma-0">
+					<MudPaper Class="py-2 px-3" Style="@(idx == 0 ? "background-color: #fff4b6" : "")">
+						<MudText Style="font-weight: 600">@count vote@(count != 1 ? "s" : ""):</MudText>
+						<MudText Typo="Typo.body2">
+							@foreach (var restaurant in restaurants)
+							{
+								<MudChip 
+									Variant="Variant.Outlined" 
+									Color="@(RandomHelper.PickEnumValueByHash<Color>(restaurant.Id.Value))">
+									@restaurant.Name
+								</MudChip>
+							}
+						</MudText>
+					</MudPaper>
+				</MudListItem>
+			}
+		}
+		else
+		{
+			<MudListItem Class="pa-0 ma-0">
+				<MudPaper Class="py-2 px-3">
+					<MudText>No votes cast yet</MudText>
+				</MudPaper>
+			</MudListItem>
+		}
+	</MudList>
+</MudContainer>
+
+@code {
+	[Inject]
+	RestaurantRepository RestaurantRepository { get; set; } = default!;
+
+	[Inject]
+	VoteService VoteService { get; set; } = default!;
+
+	[Inject]
+	WhatToEatSettings Settings { get; set; } = default!;
+
+	private List<(int Count, List<Restaurant> Restaurants)> Results { get; set; } = new();
+
+	private IEnumerable<(int Idx, int Count, List<Restaurant> Restaurants)> ResultsWithIndex =>
+			Enumerable.Range(0, Results.Count).Select(x =>
+			{
+				var result = Results[x];
+				return (x, result.Count, result.Restaurants);
+			});
+
+	protected override async Task OnInitializedAsync()
+	{
+		VoteService.OnBroadcastVoteChanged -= OnBroadcastVoteChangedAsync;
+		VoteService.OnBroadcastVoteChanged += OnBroadcastVoteChangedAsync;
+
+		await UpdateVotesAsync();
+	}
+
+	public async Task UpdateVotesAsync()
+	{
+		var restaurants = (await RestaurantRepository.GetAllAsync(CancellationToken)).ToDictionary(x => x.Id);
+		var allUsersVotes = await VoteService.GetVotesAsync(CancellationToken);
+
+		Results = allUsersVotes
+				.SelectMany(x => x.RestaurantIds) // get flat array of restaurant ids
+				.GroupBy(x => x) // group by ids, making lists of the same ids
+				.ToDictionary(x => x.Key, x => x.Count()) // aggregate these same ids by count, create id => count map
+				.GroupBy(x => x.Value, x => x.Key) // group by count, collect every id that has the same count
+				.ToDictionary(x => x.Key) // join ids by comma, create count => id list
+				.OrderByDescending(x => x.Key) // order key-pairs by count descending
+				.Take(Settings.Configuration.VoteResultLimit) // select the N most voted restaurant
+				.Select(x => (x.Key, x.Value.Select(y => restaurants[y]).ToList())) // Get restaurant object for every id
+				.ToList();
+	}
+
+	public async Task OnBroadcastVoteChangedAsync(BroadcastMessage message)
+	{
+		await UpdateVotesAsync();
+#pragma warning disable CS4014
+		InvokeAsync(StateHasChanged);
+#pragma warning restore CS4014
+	}
+
+	public new void Dispose()
+	{
+		VoteService.OnBroadcastVoteChanged -= OnBroadcastVoteChangedAsync;
+		base.Dispose();
+	}
+}

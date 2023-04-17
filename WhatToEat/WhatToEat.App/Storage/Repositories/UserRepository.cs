@@ -11,7 +11,7 @@ namespace WhatToEat.App.Storage.Repositories
         public async Task<User> CreateAsync(CreateUser createUser, CancellationToken cancellationToken)
         {
             var user = new User { 
-                Id = ModelHelpers.GenerateId(), 
+                Id = new Id<User>(),
                 Name = createUser.Name,
                 Admin = createUser.Admin,
             };

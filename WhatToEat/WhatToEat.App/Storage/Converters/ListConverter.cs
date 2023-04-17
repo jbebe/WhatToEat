@@ -12,7 +12,7 @@ public static class ListConverter
 {
 	public static void AddConverter<T>(this PropertyBuilder<List<T>> builder)
 	{
-		var opts = JsonSerializerOptions.Default;
+		var opts = new JsonSerializerOptions();
 		opts.Converters.Add(new JsonStringEnumConverter());
 		opts.Converters.Add(new JsonIdConverter<Restaurant>());
 		opts.Converters.Add(new JsonIdConverter<User>());

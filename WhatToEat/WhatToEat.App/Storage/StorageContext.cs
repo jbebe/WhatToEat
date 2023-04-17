@@ -16,7 +16,7 @@ public class StorageContext : DbContext
 
     public StorageContext(IConfiguration configuration) 
     {
-        ConnectionString = configuration.Get<WhatToEatSettings>()!.SQLite.ConnectionString;
+        ConnectionString = configuration.Get<WhatToEatSettings>()!.Configuration.SQLiteConnectionString;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder builder) 

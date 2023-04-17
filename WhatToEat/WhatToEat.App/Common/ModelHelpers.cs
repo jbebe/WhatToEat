@@ -2,5 +2,5 @@
 
 public static class ModelHelpers
 {
-    public static string GenerateId() => Guid.NewGuid().ToString();
+    public static string GenerateId() => Guid.NewGuid().ToString("D");
 }
