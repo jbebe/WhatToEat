@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WhatToEat.App.Common;
 
@@ -13,12 +12,7 @@ public static class IdConverter
 			new ValueConverter<Id<T>, string>(
 				x => x.Value,
 				x => new Id<T>(x)
-			),
-			new ValueComparer<Id<T>>(
-				(a, b) => a!.Value == b!.Value,
-				x => x.GetHashCode()
 			)
 		);
 	}
-
 }

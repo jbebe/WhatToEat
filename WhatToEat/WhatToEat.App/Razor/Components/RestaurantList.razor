@@ -8,9 +8,9 @@
 
 <MudText Typo="Typo.h5" Class="mb-4">Restaurants</MudText>
 
-<MudTable Items="@Restaurants" Dense Hover Breakpoint="Breakpoint.Sm" Loading="@Loading" LoadingProgressColor="Color.Info"
+<MudTable Items="@RestaurantService.Restaurants.Values" Dense Hover Breakpoint="Breakpoint.Sm" Loading="@Loading" LoadingProgressColor="Color.Info"
 		  @ref="TableRef" T="Restaurant" MultiSelection SelectOnRowClick="false"
-		  SelectedItemsChanged="SelectedItemsChanged">
+		  SelectedItemsChanged="SelectedItemsChanged" SelectedItems="SelectedItems">
 	<HeaderContent>
 		<MudTh>Name</MudTh>
 		<MudTh>Payment method</MudTh>
@@ -25,43 +25,48 @@
 
 @code {
 	[Inject]
-	RestaurantRepository RestaurantRepository { get; set; } = default!;
+	RestaurantService RestaurantService { get; set; } = default!;
 
 	[Inject]
 	VoteService VoteService { get; set; } = default!;
 
-	[Inject]
-	SessionService SessionService { get; set; } = default!;
-
-	HashSet<Restaurant> SelectedItems = default!;
-
-	IEnumerable<Restaurant> Restaurants => RestaurantMap.Values.OrderBy(x => x.Name);
-
-	Dictionary<Id<Restaurant>, Restaurant> RestaurantMap { get; set; } = new();
-
 	bool Loading { get; set; } = true;
 
-	MudTable<Restaurant> TableRef = default!;
+	MudTable<Restaurant>? TableRef;
 
-	List<Restaurant> Votes = default!;
+	HashSet<Restaurant> SelectedItems => 
+		new HashSet<Restaurant>(VoteService.Vote?.Restaurants.ToHashSet() ?? new());
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
-		await SessionService.LoginAsync(CancellationToken);
-		RestaurantMap = (await RestaurantRepository.GetAllAsync(CancellationToken)).ToDictionary(x => x.Id);
-		Votes = await VoteService.GetVoteAsync(CancellationToken);
-		SelectedItems = Votes.Select(x => RestaurantMap[x.Id]).ToHashSet();
+		RestaurantService.OnChanged -= UpdateRestaurantsAsync;
+		RestaurantService.OnChanged += UpdateRestaurantsAsync;
+	}
+
+	private Task UpdateRestaurantsAsync()
+	{
+		InvokeAsync(() =>
+		{
+//#pragma warning disable BL0005
+//			TableRef!.SelectedItems = SelectedItems;
+//#pragma warning restore BL0005
+
+			StateHasChanged();
+		});
+
+		return Task.CompletedTask;
 	}
 
 	protected override void OnAfterRender(bool firstRender)
 	{
 		Loading = false;
 		base.OnAfterRender(firstRender);
+
+		InvokeAsync(StateHasChanged);
 	}
 
 	void SelectedItemsChanged(HashSet<Restaurant> selectedItems)
 	{
-		// Blazor waits for this method if awaited, even though we call it like a regular function
 #pragma warning disable CS4014
 		VoteService.CastVoteAsync(selectedItems.ToList(), CancellationToken);
 #pragma warning restore CS4014

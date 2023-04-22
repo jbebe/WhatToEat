@@ -1,4 +1,5 @@
-﻿using WhatToEat.App.Storage.Model;
+﻿using WhatToEat.App.Services.Models;
+using WhatToEat.App.Storage.Model;
 using WhatToEat.App.Storage.Repositories;
 
 namespace WhatToEat.App.Services;
@@ -14,7 +15,7 @@ public class SessionService
 		UserRepository = userRepository;
 	}
 
-	public async Task LoginAsync(CancellationToken cancellationToken)
+	public async Task LoginAsync(LoginForm form, CancellationToken cancellationToken)
 	{
 		var users = await UserRepository.GetAllAsync(cancellationToken);
 		User = users.First(x => x.Admin);

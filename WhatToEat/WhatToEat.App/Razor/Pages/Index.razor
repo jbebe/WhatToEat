@@ -1,6 +1,8 @@
 ﻿@page "/"
+@using WhatToEat.App.Services;
 @using WhatToEat.App.Storage.Model;
 @using WhatToEat.App.Storage.Repositories;
+@inherits BaseComponent;
 
 <PageTitle>What To Eat</PageTitle>
 
@@ -9,8 +11,21 @@
 		<RestaurantList />
 	</MudItem>
 	<MudItem xs="12" sm="6" md="6">
-		Vote result
+		<VoteResult />
 		Presence list
 		Statistics
 	</MudItem>
 </MudGrid>
+
+@code {
+	[Inject]
+	SessionService SessionService { get; set; } = default!;
+
+	[Inject]
+	NavigationManager NavManager { get; set; } = default!;
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		if (SessionService.User == null) NavManager.NavigateTo("/login");
+	}
+}

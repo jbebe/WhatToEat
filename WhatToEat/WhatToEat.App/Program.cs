@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using MudBlazor.Services;
 using WhatToEat.App.Server;
 using WhatToEat.App.Services;
@@ -20,9 +21,14 @@ builder.Services.Configure<WhatToEatSettings>(builder.Configuration.GetSection("
 // Singletons
 builder.Services.AddSingleton<StorageContext>();
 builder.Services.AddSingleton<BroadcastService>();
+builder.Services.AddSingleton<CircuitHandler>(new CircuitHandlerService());
+
+// Scoped services
+builder.Services.AddScoped((services) => new CancellationTokenSource());
 
 // Storage services
 builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<RestaurantService>();
 builder.Services.AddScoped<RestaurantRepository>();
 builder.Services.AddScoped<VoteRepository>();
 

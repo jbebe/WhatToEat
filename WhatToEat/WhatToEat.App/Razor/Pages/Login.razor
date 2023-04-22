@@ -1,0 +1,53 @@
+﻿@page "/login"
+@using System.ComponentModel.DataAnnotations;
+@using WhatToEat.App.Services;
+@using WhatToEat.App.Services.Models;
+@using WhatToEat.App.Storage.Model;
+@using WhatToEat.App.Storage.Repositories;
+@inherits BaseComponent;
+
+<PageTitle>Login</PageTitle>
+
+<EditForm Model="@Model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator/>
+    <MudGrid>
+        <MudItem>
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="Email" Class="mt-3"
+                                  @bind-Value="Model.Email" For="@(() => Model.Email)"/>
+                    <MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
+                                  @bind-Value="Model.Password" For="@(() => Model.Password)" InputType="InputType.Password"/>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Register</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+@code {
+    [Inject]
+    SessionService SessionService { get; set; } = default!;
+
+    [Inject]
+    NavigationManager NavManager { get; set; } = default!;
+
+    LoginForm Model = new();
+
+    private void OnValidSubmit(EditContext context)
+    {
+        async Task OnValidSubmitAsync()
+        {
+            await SessionService.LoginAsync(Model, CancellationToken);
+            NavManager.NavigateTo("/");
+            //await InvokeAsync(StateHasChanged);
+        }
+
+#pragma warning disable CS4014
+        OnValidSubmitAsync();
+#pragma warning restore CS4014
+    }
+
+}
