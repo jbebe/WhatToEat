@@ -2,21 +2,19 @@
 
 @code
 {
-    [Inject]
-    CancellationTokenSource CancellationTokenSource { get; set; } = default!;
+    private CancellationTokenSource TokenSource { get; }
 
-    protected CancellationToken CancellationToken => CancellationTokenSource.Token;
+    protected CancellationToken CancellationToken { get; }
 
-    protected bool IsRoot { get; set; } = false;
-
-    protected void SetRoot() => IsRoot = true;
+    public BaseComponent()
+    {
+        TokenSource = new CancellationTokenSource();
+        CancellationToken = TokenSource.Token;
+    }
 
     public void Dispose()
     {
-        if (IsRoot && !CancellationTokenSource.IsCancellationRequested)
-        {
-            CancellationTokenSource.Cancel();
-            CancellationTokenSource.Dispose();
-        }
+        TokenSource.Cancel();
+        TokenSource.Dispose();
     }
 }

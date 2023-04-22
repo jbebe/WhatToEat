@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using WhatToEat.App.Services;
+@using WhatToEat.App.Services.Models;
 @using WhatToEat.App.Storage.Model;
 @using WhatToEat.App.Storage.Repositories;
 @inherits BaseComponent;
@@ -24,8 +25,11 @@
 	[Inject]
 	NavigationManager NavManager { get; set; } = default!;
 
-	protected override void OnAfterRender(bool firstRender)
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (SessionService.User == null) NavManager.NavigateTo("/login");
+		if (!await SessionService.LoginAsync(new LoginForm("admin@example.com", "test"), CancellationToken))
+		{
+			NavManager.NavigateTo("/login");
+		}
 	}
 }

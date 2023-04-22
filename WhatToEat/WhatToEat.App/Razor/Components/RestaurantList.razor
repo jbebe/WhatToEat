@@ -47,9 +47,9 @@
 	{
 		InvokeAsync(() =>
 		{
-//#pragma warning disable BL0005
-//			TableRef!.SelectedItems = SelectedItems;
-//#pragma warning restore BL0005
+			//#pragma warning disable BL0005
+			//			TableRef!.SelectedItems = SelectedItems;
+			//#pragma warning restore BL0005
 
 			StateHasChanged();
 		});
@@ -67,6 +67,8 @@
 
 	void SelectedItemsChanged(HashSet<Restaurant> selectedItems)
 	{
+		if (Loading) return;
+
 #pragma warning disable CS4014
 		VoteService.CastVoteAsync(selectedItems.ToList(), CancellationToken);
 #pragma warning restore CS4014

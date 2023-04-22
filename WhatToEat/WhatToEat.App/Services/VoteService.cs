@@ -1,4 +1,5 @@
-﻿using WhatToEat.App.Services.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using WhatToEat.App.Services.Models;
 using WhatToEat.App.Storage.Model;
 using WhatToEat.App.Storage.Repositories;
 
@@ -14,16 +15,14 @@ public sealed class VoteService : AsyncServiceBase
 
 	public IReadOnlyList<Vote> Votes { get; set; } = new List<Vote>();
 
-	public Vote? Vote => Votes.FirstOrDefault(x => x.UserId == SessionService.User.Id);
+	public Vote? Vote => Votes.FirstOrDefault(x => x.UserId == SessionService.User?.Id);
 
 	public event Func<Task>? OnChanged;
 
 	public VoteService(
 	  SessionService sessionService,
 	  VoteRepository voteRepository,
-	  BroadcastService broadcastService,
-      CancellationTokenSource cancellationTokenSource)
-		: base(cancellationTokenSource)
+	  BroadcastService broadcastService)
 	{
 		SessionService = sessionService;
 		VoteRepository = voteRepository;
@@ -45,12 +44,19 @@ public sealed class VoteService : AsyncServiceBase
 
 	private async Task UpdateVotesAsync()
 	{
-		Votes = await VoteRepository.GetAllAsync(CancellationToken);
+		Votes = await VoteRepository.GetAllAsync(AddIncludes, CancellationToken.None);
 	}
 
-	public async Task CastVoteAsync(List<Restaurant> restaurants, CancellationToken cancellationToken)
+    private IQueryable<Vote> AddIncludes(DbSet<Vote> dbSet)
+    {
+		return dbSet
+			.Include(x => x.Restaurants)
+			.Include(x => x.User);
+    }
+
+    public async Task CastVoteAsync(List<Restaurant> restaurants, CancellationToken cancellationToken)
 	{
-		await VoteRepository.CreateOrUpdateAsync(SessionService.User, restaurants, cancellationToken);
+		await VoteRepository.CreateOrUpdateAsync(SessionService.User!, restaurants, cancellationToken);
 		BroadcastService.SendMessage<VoteChanged>();
 	}
 

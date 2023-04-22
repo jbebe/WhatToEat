@@ -20,7 +20,8 @@
                                   @bind-Value="Model.Password" For="@(() => Model.Password)" InputType="InputType.Password"/>
                 </MudCardContent>
                 <MudCardActions>
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Register</MudButton>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" 
+                        Color="Color.Primary" Class="ml-auto">Register</MudButton>
                 </MudCardActions>
             </MudCard>
         </MudItem>
@@ -34,7 +35,7 @@
     [Inject]
     NavigationManager NavManager { get; set; } = default!;
 
-    LoginForm Model = new();
+    LoginForm Model = new("asd@asd.hu", "asdasd123");
 
     private void OnValidSubmit(EditContext context)
     {

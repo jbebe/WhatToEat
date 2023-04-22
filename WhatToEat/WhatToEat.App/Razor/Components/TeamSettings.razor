@@ -32,6 +32,6 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		Users = await UserRepository.GetAllAsync(CancellationToken);
+		Users = await UserRepository.GetAllAsync(null, CancellationToken);
 	}
 }

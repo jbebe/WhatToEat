@@ -14,8 +14,11 @@
 </Router>
 
 @code {
+    [Inject]
+    NavigationManager NavigationManager { get; set; } = default!;
+
     protected override void OnInitialized()
     {
-        SetRoot();
+        Console.WriteLine($">>> Url: {NavigationManager.Uri}");
     }
 }

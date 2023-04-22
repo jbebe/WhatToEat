@@ -21,10 +21,8 @@ builder.Services.Configure<WhatToEatSettings>(builder.Configuration.GetSection("
 // Singletons
 builder.Services.AddSingleton<StorageContext>();
 builder.Services.AddSingleton<BroadcastService>();
-builder.Services.AddSingleton<CircuitHandler>(new CircuitHandlerService());
-
-// Scoped services
-builder.Services.AddScoped((services) => new CancellationTokenSource());
+builder.Services.AddSingleton(serviceProvider => 
+    serviceProvider.GetRequiredService<IConfiguration>().Get<WhatToEatSettings>()!);
 
 // Storage services
 builder.Services.AddScoped<UserRepository>();

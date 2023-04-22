@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace WhatToEat.App.Storage.Repositories
 {
-	public class RepositoryBase<T> where T : class
+    public class RepositoryBase<T> where T : class
 	{
 		protected StorageContext Context { get; }
 
@@ -31,13 +31,23 @@ namespace WhatToEat.App.Storage.Repositories
 			await Context.SaveChangesAsync(cancellationToken);
 		}
 
-		public async Task<List<T>> GetAllAsync(CancellationToken cancellationToken) =>
-			await DbSet.Value.ToListAsync(cancellationToken);
+        public async Task<List<T>> GetAllAsync(
+            Func<DbSet<T>, IQueryable<T>>? addIncludes = null,
+            CancellationToken? cancellationToken = null) =>
+			await QueryAsync(whereExpression: null, addIncludes, cancellationToken);
 
-
-		protected async Task<List<T>> QueryAsync(Expression<Func<T, bool>> whereExpression, CancellationToken cancellationToken)
+        protected async Task<List<T>> QueryAsync(
+			Expression<Func<T, bool>>? whereExpression = null, 
+			Func<DbSet<T>, IQueryable<T>>? addIncludes = null,
+			CancellationToken? cancellationToken = null)
 		{
-			return await DbSet.Value.Where(whereExpression).ToListAsync();
+			var query = addIncludes != null
+				? addIncludes(DbSet.Value)
+				: DbSet.Value;
+			query = whereExpression != null
+				? query.Where(whereExpression)
+				: query;
+			return await query.ToListAsync(cancellationToken ?? CancellationToken.None);
 		}
 	}
 }

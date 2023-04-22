@@ -6,7 +6,7 @@ using WhatToEat.App.Storage.Repositories;
 
 namespace WhatToEat.App.Services;
 
-public sealed class RestaurantService : AsyncServiceBase
+public sealed class RestaurantService: AsyncServiceBase
 {
 	private RestaurantRepository RestaurantRepository { get; set; }
 
@@ -19,9 +19,7 @@ public sealed class RestaurantService : AsyncServiceBase
 
 	public RestaurantService(
 	  BroadcastService eventService,
-	  RestaurantRepository restaurantRepository, 
-	  CancellationTokenSource cancellationTokenSource
-	) : base(cancellationTokenSource)
+	  RestaurantRepository restaurantRepository)
 	{
 		BroadcastService = eventService;
 		RestaurantRepository = restaurantRepository;
@@ -45,7 +43,7 @@ public sealed class RestaurantService : AsyncServiceBase
 
 	private async Task UpdateRestaurantsAsync()
 	{
-		var restaurantList = await RestaurantRepository.GetAllAsync(CancellationToken);
+		var restaurantList = await RestaurantRepository.GetAllAsync(null, CancellationToken.None);
 		Restaurants = restaurantList.ToImmutableDictionary(x => x.Id);
 	}
 

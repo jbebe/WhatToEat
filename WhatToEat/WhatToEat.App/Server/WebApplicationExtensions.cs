@@ -15,15 +15,15 @@ namespace WhatToEat.App.Server
 
             // Create users
             var userRepo = scope.ServiceProvider.GetRequiredService<UserRepository>();
-            var users = await userRepo.GetAllAsync(ct);
+            var users = await userRepo.GetAllAsync(null, ct);
             if (users.Count >= 3)
             {
                 // Already initialized with dummy data
                 return;
             }
-            var admin = await userRepo.CreateAsync(new CreateUser("Admin", Admin: true), ct);
-            var userA = await userRepo.CreateAsync(new CreateUser("User A"), ct);
-            var userB = await userRepo.CreateAsync(new CreateUser("User B"), ct);
+            var admin = await userRepo.CreateAsync(new CreateUser("Admin", "admin@example.com", "test", Admin: true), ct);
+            var userA = await userRepo.CreateAsync(new CreateUser("User A", "user_a@example.com", "test"), ct);
+            var userB = await userRepo.CreateAsync(new CreateUser("User B", "user_b@example.com", "test"), ct);
 
             // Create restaurants
             var restaurantRepo = scope.ServiceProvider.GetRequiredService<RestaurantRepository>();

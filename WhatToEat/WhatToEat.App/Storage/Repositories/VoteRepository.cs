@@ -25,7 +25,7 @@ namespace WhatToEat.App.Storage.Repositories
 		public async Task<Vote?> GetAsync(User user, CancellationToken cancellationToken)
 		{
 			var today = DateTime.UtcNow.Date;
-			var votes = await QueryAsync(x => x.Date == today && x.User == user, cancellationToken);
+			var votes = await QueryAsync(x => x.Date == today && x.User == user, null, cancellationToken);
 
 			return votes.SingleOrDefault();
 		}
