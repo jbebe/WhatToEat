@@ -2,9 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using WhatToEat.App.Common;
 using WhatToEat.App.Storage.Converters;
+using System.ComponentModel.DataAnnotations;
 
 namespace WhatToEat.App.Storage.Model;
 
+[PrimaryKey(nameof(Id))]
 public class User : IEntityTypeConfiguration<User>
 {
     public Id<User> Id { get; set; } = default!;
@@ -17,13 +19,10 @@ public class User : IEntityTypeConfiguration<User>
 
 	public void Configure(EntityTypeBuilder<User> builder)
 	{
-		builder.HasKey(x => x.Id);
-		builder
-			.HasMany(x => x.Votes)
-			.WithOne(x => x.User)
-			.HasForeignKey(x => x.UserId)
-			.IsRequired()
-			.OnDelete(DeleteBehavior.Cascade);
 		builder.Property(x => x.Id).AddConverter();
+		builder.HasMany(p => p.Votes)
+			.WithOne(p => p.User)
+			.HasForeignKey(p => p.UserId)
+			.OnDelete(DeleteBehavior.Cascade);
 	}
 }

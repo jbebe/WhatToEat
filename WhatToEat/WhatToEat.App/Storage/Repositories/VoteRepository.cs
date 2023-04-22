@@ -7,17 +7,16 @@ namespace WhatToEat.App.Storage.Repositories
 	{
 		public VoteRepository(StorageContext context): base(context) { }
 
-		public async Task<Vote> CreateOrUpdateAsync(User user, List<Id<Restaurant>> ids, CancellationToken cancellationToken)
+		public async Task<Vote> CreateOrUpdateAsync(User user, List<Restaurant> restaurants, CancellationToken cancellationToken)
 		{
 			var vote = new Vote { 
 				Date = DateTime.UtcNow.Date,
 				User = user,
-				UserId = user.Id,
-				RestaurantIds = ids,
+				Restaurants = restaurants,
             };
 			await CreateOrUpdateAsync(vote, x => x.UserId == vote.UserId && x.Date == vote.Date, x =>
 			{
-				x.RestaurantIds = vote.RestaurantIds;
+				x.Restaurants = vote.Restaurants;
 			}, cancellationToken);
 
 			return vote;

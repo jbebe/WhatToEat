@@ -74,7 +74,7 @@
 		var allUsersVotes = await VoteService.GetVotesAsync(CancellationToken);
 
 		Results = allUsersVotes
-				.SelectMany(x => x.RestaurantIds) // get flat array of restaurant ids
+				.SelectMany(x => x.Restaurants.Select(x => x.Id)) // get flat array of restaurant ids
 				.GroupBy(x => x) // group by ids, making lists of the same ids
 				.ToDictionary(x => x.Key, x => x.Count()) // aggregate these same ids by count, create id => count map
 				.GroupBy(x => x.Value, x => x.Key) // group by count, collect every id that has the same count

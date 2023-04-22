@@ -14,9 +14,15 @@ public class Id<T>
 
     public override int GetHashCode() => Value.GetHashCode();
 
-	public override string ToString() => $"Id<{typeof(T).Name}>(\"{Value}\")";
+	public override string ToString() => Value; //$"Id<{typeof(T).Name}>(\"{Value}\")";
 
 	public override bool Equals(object? obj) => Value.Equals(obj);
+
+	public static implicit operator string(Id<T> id)
+			=> id.Value;
+
+	public static implicit operator Id<T>(string value)
+		=> new(value);
 }
 
 public class JsonIdConverter<T> : JsonConverter<Id<T>>

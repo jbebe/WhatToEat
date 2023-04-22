@@ -33,8 +33,8 @@ namespace WhatToEat.App.Server
 
             // Create votes
             var voteRepo = scope.ServiceProvider.GetRequiredService<VoteRepository>();
-            await voteRepo.CreateOrUpdateAsync(userA, new List<Id<Restaurant>>{ restaurantA.Id }, ct);
-            await voteRepo.CreateOrUpdateAsync(userB, new List<Id<Restaurant>> { restaurantA.Id, restaurantB.Id }, ct);
+            await voteRepo.CreateOrUpdateAsync(userA, new List<Restaurant>{ restaurantA }, ct);
+            await voteRepo.CreateOrUpdateAsync(userB, new List<Restaurant> { restaurantA, restaurantB }, ct);
         }
     }
 }

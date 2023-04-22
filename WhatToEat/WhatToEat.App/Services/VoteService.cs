@@ -36,20 +36,20 @@ public sealed class VoteService : IDisposable
 		}
 	}
 
-	public async Task CastVoteAsync(List<Id<Restaurant>> ids, CancellationToken cancellationToken)
+	public async Task CastVoteAsync(List<Restaurant> restaurants, CancellationToken cancellationToken)
 	{
-		await VoteRepository.CreateOrUpdateAsync(SessionService.User, ids, cancellationToken);
+		await VoteRepository.CreateOrUpdateAsync(SessionService.User, restaurants, cancellationToken);
 
 		BroadcastService.SendMessage(new VoteChanged());
 	}
 
-	public async Task<List<Id<Restaurant>>> GetVoteAsync(CancellationToken cancellationToken)
+	public async Task<List<Restaurant>> GetVoteAsync(CancellationToken cancellationToken)
 	{
 		Vote = await VoteRepository.GetAsync(SessionService.User, cancellationToken);
 		if (Vote == null)
-			return new List<Id<Restaurant>>();
+			return new List<Restaurant>();
 
-		return Vote.RestaurantIds;
+		return Vote.Restaurants;
 	}
 
 	public async Task<List<Vote>> GetVotesAsync(CancellationToken cancellationToken)
