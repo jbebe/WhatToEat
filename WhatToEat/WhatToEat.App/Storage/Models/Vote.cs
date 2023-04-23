@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using WhatToEat.App.Common;
 using WhatToEat.App.Storage.Converters;
 
 namespace WhatToEat.App.Storage.Model;
@@ -10,7 +9,7 @@ public class Vote : IEntityTypeConfiguration<Vote>
 {
 	public DateTime Date { get; set; }
 
-	public Id<User> UserId { get; protected set; } = default!;
+	public string UserId { get; protected set; } = default!;
 
     public User User { get; set; } = default!;
 
@@ -19,7 +18,6 @@ public class Vote : IEntityTypeConfiguration<Vote>
     public void Configure(EntityTypeBuilder<Vote> builder)
     {
 		builder.Property(p => p.Date).AddConverter();
-		builder.Property(p => p.UserId).AddConverter();
 		builder.HasOne(p => p.User)
 			.WithMany(p => p.Votes)
 			.HasForeignKey(p => p.UserId)

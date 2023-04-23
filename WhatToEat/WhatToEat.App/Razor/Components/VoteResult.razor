@@ -21,7 +21,7 @@
 							{
 								<MudChip 
 									Variant="Variant.Outlined" 
-									Color="@(RandomHelper.PickEnumValueByHash<Color>(restaurant.Id.Value))">
+									Color="@(RandomHelper.PickEnumValueByHash<Color>(restaurant.Id))">
 									@restaurant.Name
 								</MudChip>
 							}
@@ -59,16 +59,19 @@
 
 	IReadOnlyList<(int Idx, int Count, List<Restaurant> Restaurants)> CalculateVotes()
 	{
+		if (!VoteService.Votes.Any() || !RestaurantService.Restaurants.Any())
+			return new List<(int Idx, int Count, List<Restaurant> Restaurants)>();
+
 		return VoteService.Votes
-				.SelectMany(x => x.Restaurants.Select(x => x.Id)) // get flat array of restaurant ids
-				.GroupBy(x => x) // group by ids, making lists of the same ids
-				.ToDictionary(x => x.Key, x => x.Count()) // aggregate these same ids by count, create id => count map
-				.GroupBy(x => x.Value, x => x.Key) // group by count, collect every id that has the same count
-				.ToDictionary(x => x.Key) // join ids by comma, create count => id list
-				.OrderByDescending(x => x.Key) // order key-pairs by count descending
-				.Take(Settings.Configuration.VoteResultLimit) // select the N most voted restaurant
-				.Select((x, i) => (i, x.Key, x.Value.Select(y => RestaurantService.Restaurants[y]).ToList())) // Get restaurant object for every id
-				.ToList();
+			.SelectMany(x => x.Restaurants.Select(x => x.Id)) // get flat array of restaurant ids
+			.GroupBy(x => x) // group by ids, making lists of the same ids
+			.ToDictionary(x => x.Key, x => x.Count()) // aggregate these same ids by count, create id => count map
+			.GroupBy(x => x.Value, x => x.Key) // group by count, collect every id that has the same count
+			.ToDictionary(x => x.Key) // join ids by comma, create count => id list
+			.OrderByDescending(x => x.Key) // order key-pairs by count descending
+			.Take(Settings.Configuration.VoteResultLimit) // select the N most voted restaurant
+			.Select((x, i) => (i, x.Key, x.Value.Select(y => RestaurantService.Restaurants[y]).ToList())) // Get restaurant object for every id
+			.ToList();
 	}
 
 	Task OnVoteChangedAsync()

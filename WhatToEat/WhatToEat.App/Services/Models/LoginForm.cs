@@ -10,7 +10,7 @@ public class LoginForm
     public string Email { get; set; } = "";
 
     [Required]
-    [StringLength(30, ErrorMessage = "Password must be at least 8 characters long.", MinimumLength = 8)]
+    [StringLength(30, ErrorMessage = "Password must be at least 8 characters long.", MinimumLength = 4)]
     public string Password { get; set; } = "";
 
     public LoginForm(string email, string password)

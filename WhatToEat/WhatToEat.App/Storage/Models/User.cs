@@ -1,14 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
-using WhatToEat.App.Common;
-using WhatToEat.App.Storage.Converters;
+using WhatToEat.App.Storage.Models;
 
 namespace WhatToEat.App.Storage.Model;
 
 [PrimaryKey(nameof(Id))]
-public class User : IEntityTypeConfiguration<User>
+public class User : SingleKeyedEntityBase<User>, IEntityTypeConfiguration<User>
 {
-    public Id<User> Id { get; set; } = default!;
+    public override string Id { get; set; } = default!;
 
 	public string Name { get; set; } = default!;
 
@@ -22,7 +21,6 @@ public class User : IEntityTypeConfiguration<User>
 
 	public void Configure(EntityTypeBuilder<User> builder)
 	{
-		builder.Property(x => x.Id).AddConverter();
 		builder.HasMany(p => p.Votes)
 			.WithOne(p => p.User)
 			.HasForeignKey(p => p.UserId)

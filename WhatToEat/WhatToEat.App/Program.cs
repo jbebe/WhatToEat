@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using MudBlazor.Services;
 using WhatToEat.App.Server;
@@ -14,13 +15,14 @@ builder.Services.AddRazorPages(opts =>
 });
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMudServices();
+builder.Services.AddBlazoredLocalStorage();
 
 // Load configurations
 builder.Services.Configure<WhatToEatSettings>(builder.Configuration.GetSection("AppSettings"));
 
 // Singletons
 builder.Services.AddSingleton<StorageContext>();
-builder.Services.AddSingleton<BroadcastService>();
+builder.Services.AddSingleton<GlobalEventService>();
 builder.Services.AddSingleton(serviceProvider => 
     serviceProvider.GetRequiredService<IConfiguration>().Get<WhatToEatSettings>()!);
 
@@ -31,6 +33,7 @@ builder.Services.AddScoped<RestaurantRepository>();
 builder.Services.AddScoped<VoteRepository>();
 
 // Business logic services
+builder.Services.AddScoped<LocalEventService>();
 builder.Services.AddScoped<VoteService>();
 builder.Services.AddScoped<SessionService>();
 

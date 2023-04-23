@@ -1,15 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.ComponentModel.DataAnnotations;
 using WhatToEat.App.Common;
 using WhatToEat.App.Storage.Converters;
+using WhatToEat.App.Storage.Models;
 
 namespace WhatToEat.App.Storage.Model;
 
 [PrimaryKey(nameof(Id))]
-public class Restaurant : IEntityTypeConfiguration<Restaurant>
+public class Restaurant : SingleKeyedEntityBase<Restaurant>, IEntityTypeConfiguration<Restaurant>
 {
-    public Id<Restaurant> Id { get; set; } = default!;
+    public override string Id { get; set; } = default!;
 
     public string Name { get; set; } = default!;
 
@@ -17,9 +17,8 @@ public class Restaurant : IEntityTypeConfiguration<Restaurant>
 
 	public List<Vote> Votes { get; set; } = default!;
 
-	public void Configure(EntityTypeBuilder<Restaurant> builder)
+    public void Configure(EntityTypeBuilder<Restaurant> builder)
     {
-        builder.Property(p => p.Id).AddConverter();
 		builder.Property(p => p.PaymentMethods).AddConverter();
     }
 }

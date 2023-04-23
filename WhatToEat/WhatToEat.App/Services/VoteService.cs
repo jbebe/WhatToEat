@@ -11,7 +11,9 @@ public sealed class VoteService : AsyncServiceBase
 
 	private VoteRepository VoteRepository { get; set; }
 
-	private BroadcastService BroadcastService { get; set; }
+	private GlobalEventService GlobalEventService { get; set; }
+
+	private LocalEventService LocalEventService { get; set; }
 
 	public IReadOnlyList<Vote> Votes { get; set; } = new List<Vote>();
 
@@ -22,12 +24,17 @@ public sealed class VoteService : AsyncServiceBase
 	public VoteService(
 	  SessionService sessionService,
 	  VoteRepository voteRepository,
-	  BroadcastService broadcastService)
+	  GlobalEventService globalEventService,
+	  LocalEventService localEventService)
 	{
 		SessionService = sessionService;
 		VoteRepository = voteRepository;
-		BroadcastService = broadcastService;
-		BroadcastService.OnMessageAsync += OnMessageAsync;
+		GlobalEventService = globalEventService;
+		LocalEventService = localEventService;
+		GlobalEventService.OnMessage -= OnMessageAsync;
+		GlobalEventService.OnMessage += OnMessageAsync;
+		LocalEventService.OnMessage -= OnMessageAsync;
+		LocalEventService.OnMessage += OnMessageAsync;
 #pragma warning disable CS4014
 		UpdateVotesAsync();
 #pragma warning restore CS4014
@@ -35,7 +42,7 @@ public sealed class VoteService : AsyncServiceBase
 
 	private async Task OnMessageAsync(BroadcastMessage message)
 	{
-		if (message.Type == BroadcastEventType.VoteChanged)
+		if (message.Type == BroadcastEventType.VoteChanged || message.Type == BroadcastEventType.LoggedIn)
 		{
 			await UpdateVotesAsync();
 			OnChanged?.Invoke();
@@ -50,18 +57,19 @@ public sealed class VoteService : AsyncServiceBase
     private IQueryable<Vote> AddIncludes(DbSet<Vote> dbSet)
     {
 		return dbSet
-			.Include(x => x.Restaurants)
-			.Include(x => x.User);
+			/*.Include(x => x.Restaurants)
+			.Include(x => x.User)*/;
     }
 
     public async Task CastVoteAsync(List<Restaurant> restaurants, CancellationToken cancellationToken)
 	{
 		await VoteRepository.CreateOrUpdateAsync(SessionService.User!, restaurants, cancellationToken);
-		BroadcastService.SendMessage<VoteChanged>();
+		GlobalEventService.Send<VoteChanged>();
 	}
 
 	public override void Dispose()
 	{
-		BroadcastService.OnMessageAsync -= OnMessageAsync;
+		GlobalEventService.OnMessage -= OnMessageAsync;
+		LocalEventService.OnMessage -= OnMessageAsync;
 	}
 }

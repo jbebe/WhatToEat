@@ -25,9 +25,15 @@
 	[Inject]
 	NavigationManager NavManager { get; set; } = default!;
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
+	[Inject]
+	GlobalEventService GlobalEventService { get; set; } = default!;
+
+	[Inject]
+	LocalEventService LocalEventService { get; set; } = default!;
+
+	protected override void OnAfterRender(bool firstRender)
 	{
-		if (!await SessionService.LoginAsync(new LoginForm("admin@example.com", "test"), CancellationToken))
+		if (!SessionService.IsLoggedIn)
 		{
 			NavManager.NavigateTo("/login");
 		}

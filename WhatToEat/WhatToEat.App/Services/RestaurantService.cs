@@ -10,7 +10,9 @@ public sealed class RestaurantService: AsyncServiceBase
 {
 	private RestaurantRepository RestaurantRepository { get; set; }
 
-	public BroadcastService BroadcastService { get; set; }
+	public GlobalEventService GlobalEventService { get; set; }
+
+	public LocalEventService LocalEventService { get; set; }
 
 	public IReadOnlyDictionary<Id<Restaurant>, Restaurant> Restaurants { get; private set; } = 
 		new Dictionary<Id<Restaurant>, Restaurant>();
@@ -18,37 +20,37 @@ public sealed class RestaurantService: AsyncServiceBase
 	public event Func<Task>? OnChanged;
 
 	public RestaurantService(
-	  BroadcastService eventService,
+	  GlobalEventService globalEventService,
+	  LocalEventService localEventService,
 	  RestaurantRepository restaurantRepository)
 	{
-		BroadcastService = eventService;
+		GlobalEventService = globalEventService;
+		LocalEventService = localEventService;
 		RestaurantRepository = restaurantRepository;
-		BroadcastService.OnMessageAsync -= OnMessageAsync;
-		BroadcastService.OnMessageAsync += OnMessageAsync;
+		GlobalEventService.OnMessage -= OnMessageAsync;
+		GlobalEventService.OnMessage += OnMessageAsync;
+		LocalEventService.OnMessage -= OnMessageAsync;
+		LocalEventService.OnMessage += OnMessageAsync;
 	}
 
 	private async Task OnMessageAsync(BroadcastMessage message)
 	{
-		if (message.Type == BroadcastEventType.RestaurantChanged)
+		if (message.Type == BroadcastEventType.RestaurantChanged || message.Type == BroadcastEventType.LoggedIn)
 		{
 			await UpdateRestaurantsAsync();
 			OnChanged?.Invoke();
 		}
 	}
 
-	public void SendRestaurantUpdate()
-	{
-		BroadcastService.SendMessage<RestaurantChanged>();
-	}
-
 	private async Task UpdateRestaurantsAsync()
 	{
 		var restaurantList = await RestaurantRepository.GetAllAsync(null, CancellationToken.None);
-		Restaurants = restaurantList.ToImmutableDictionary(x => x.Id);
+		Restaurants = restaurantList.ToImmutableDictionary(x => x.IdTyped);
 	}
 
 	public override void Dispose()
 	{
-		BroadcastService.OnMessageAsync -= OnMessageAsync;
+		GlobalEventService.OnMessage -= OnMessageAsync;
+		LocalEventService.OnMessage -= OnMessageAsync;
 	}
 }
