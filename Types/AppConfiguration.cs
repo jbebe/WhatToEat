@@ -34,7 +34,7 @@ namespace WhatToEat.Types
       Constants = configuration.GetSection(nameof(Constants)).Get<AppConstants>();
       Secrets = configuration.GetSection(nameof(Secrets)).Get<AppSecrets>();
       var connectionString = System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_AZURE_STORAGE_CONNECTION_STRING");
-      if (connectionString != null)
+      if (Constants.Environment == AppEnvironment.Production)
         Secrets = new AppSecrets { StorageConnectionString = connectionString };
     }
   }

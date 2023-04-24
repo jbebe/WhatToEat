@@ -16,7 +16,6 @@
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5185",
-      "launchUrl": "login"
     },
     "IIS Express": {
       "commandName": "IISExpress",

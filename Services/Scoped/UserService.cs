@@ -2,17 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Http;
-using WhatToEat.Helpers;
+using Microsoft.JSInterop;
 using WhatToEat.Types;
 using WhatToEat.Types.TableEntities;
 
 namespace WhatToEat.Services.Scoped
 {
-  public class UserService
+	public class UserService
   {
     #region Service params
 
@@ -38,11 +37,13 @@ namespace WhatToEat.Services.Scoped
     
     public IHttpContextAccessor HttpContextAccessor { get; }
 
+    public IJSRuntime JSRuntime { get; set; }
+
     #endregion
 
     #region App events
 
-    public event Action OnLoginSuccessful;
+        public event Action OnLoginSuccessful;
 
     #endregion
 
@@ -51,13 +52,15 @@ namespace WhatToEat.Services.Scoped
       StorageService storageService,
       IHttpClientFactory httpClient,
       AppConfiguration config,
-      IHttpContextAccessor httpContextAccessor)
+      IHttpContextAccessor httpContextAccessor,
+      IJSRuntime jsRuntime)
     {
       LocalStorage = localStorage;
       StorageService = storageService;
       HttpClient = httpClient;
       Config = config;
       HttpContextAccessor = httpContextAccessor;
+      JSRuntime = jsRuntime;
     }
 
     public async Task LoginAsync()
@@ -101,13 +104,7 @@ namespace WhatToEat.Services.Scoped
 
     private async Task<UserData> QueryAdUserDataAsync()
     {
-      if (Config.Constants.Environment == Types.Enums.AppEnvironment.Development)
-        return DevelopmentHelper.CreateTestUserData();
-      
-      var client = HttpClient.CreateClient();
-      client.BaseAddress = new Uri($"https://{HttpContextAccessor.HttpContext.Request.Host.Value}");
-      var response = await client.GetAsync(Config.Constants.AdUserInfoPath);
-      var adUserData = (await response.Content.ReadFromJsonAsync<AdUserData[]>())!.First();
+	  var adUserData = (await JSRuntime.InvokeAsync<AdUserData[]>("getAdOjectAsync")).First();
       return new UserData(adUserData.GetUserId(), adUserData.GetFullName());
     }
   }

@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Http;
 using WhatToEat.Services.Singleton;
 using WhatToEat.Services.Scoped;
 using WhatToEat.Types;
+using static WhatToEat.Types.AdUserData;
+using System.Collections.Generic;
 
 namespace WhatToEat
 {
@@ -62,7 +64,33 @@ namespace WhatToEat
       {
         endpoints.MapBlazorHub();
         endpoints.MapFallbackToPage("/_Host");
-      });
+        if (env.IsDevelopment())
+        {
+		  endpoints.MapGet(".auth/me", async ctx =>
+		  {
+            ctx.Response.StatusCode = 200;
+			await ctx.Response.WriteAsJsonAsync(new AdUserData[]
+            {
+              new AdUserData
+              {
+                UserClaims = new List<UserClaim>
+                {
+                  new UserClaim
+                  {
+                    Typ  = "/emailaddress",
+                    Val = "john.doe@example.com"
+                  },
+                  new UserClaim
+                  {
+                    Typ  = "name",
+                    Val = "John Doe"
+                  }
+                }
+              }
+            });
+		  });
+		}
+	  });
     }
   }
 }
