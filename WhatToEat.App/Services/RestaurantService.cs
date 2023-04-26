@@ -10,9 +10,9 @@ public sealed class RestaurantService: AsyncServiceBase
 {
 	private RestaurantRepository RestaurantRepository { get; set; }
 
-	public GlobalEventService GlobalEventService { get; set; }
+	private GlobalEventService GlobalEventService { get; set; }
 
-	public LocalEventService LocalEventService { get; set; }
+	private LocalEventService LocalEventService { get; set; }
 
 	public IReadOnlyDictionary<Id<Restaurant>, Restaurant> Restaurants { get; private set; } = 
 		new Dictionary<Id<Restaurant>, Restaurant>();

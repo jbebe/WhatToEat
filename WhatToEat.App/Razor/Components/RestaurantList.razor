@@ -34,35 +34,32 @@
 
 	MudTable<Restaurant>? TableRef;
 
-	HashSet<Restaurant> SelectedItems => 
-		new HashSet<Restaurant>(VoteService.Vote?.Restaurants.ToHashSet() ?? new());
+	HashSet<Restaurant> SelectedItems { get; set; } = default!;
 
 	protected override void OnInitialized()
 	{
 		RestaurantService.OnChanged -= UpdateRestaurantsAsync;
 		RestaurantService.OnChanged += UpdateRestaurantsAsync;
+
+		//RestaurantService.
 	}
 
 	private Task UpdateRestaurantsAsync()
 	{
-		InvokeAsync(() =>
-		{
-			//#pragma warning disable BL0005
-			//			TableRef!.SelectedItems = SelectedItems;
-			//#pragma warning restore BL0005
-
-			StateHasChanged();
-		});
-
+		SelectedItems = new HashSet<Restaurant>(VoteService.Vote?.Restaurants.ToHashSet() ?? new());
+		InvokeAsync(StateHasChanged);
 		return Task.CompletedTask;
 	}
+
+	//#pragma warning disable BL0005
+	//			TableRef!.SelectedItems = SelectedItems;
+	//#pragma warning restore BL0005
 
 	protected override void OnAfterRender(bool firstRender)
 	{
 		Loading = false;
+		if (firstRender) InvokeAsync(StateHasChanged);
 		base.OnAfterRender(firstRender);
-
-		InvokeAsync(StateHasChanged);
 	}
 
 	void SelectedItemsChanged(HashSet<Restaurant> selectedItems)
@@ -72,5 +69,11 @@
 #pragma warning disable CS4014
 		VoteService.CastVoteAsync(selectedItems.ToList(), CancellationToken);
 #pragma warning restore CS4014
+	}
+
+	public new void Dispose()
+	{
+		RestaurantService.OnChanged -= UpdateRestaurantsAsync;
+		base.Dispose();
 	}
 }

@@ -7,16 +7,19 @@
 
 <PageTitle>What To Eat</PageTitle>
 
-<MudGrid Class="top-section">
-	<MudItem xs="12" sm="6" md="6">
-		<RestaurantList />
-	</MudItem>
-	<MudItem xs="12" sm="6" md="6">
-		<VoteResult />
-		Presence list
-		Statistics
-	</MudItem>
-</MudGrid>
+@if (SessionService.IsLoggedIn)
+{
+	<MudGrid Class="top-section">
+		<MudItem xs="12" sm="6" md="6">
+			<RestaurantList />
+		</MudItem>
+		<MudItem xs="12" sm="6" md="6">
+			<VoteResult />
+			Presence list
+			Statistics
+		</MudItem>
+	</MudGrid>
+}
 
 @code {
 	[Inject]
