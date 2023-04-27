@@ -24,10 +24,10 @@ namespace WhatToEat.App.Storage.Repositories
             return user;
 		}
 
-        public async Task<User?> GetAsync(string email, string hash, CancellationToken cancellationToken)
+        public async Task<User> GetAsync(string email, string hash, CancellationToken cancellationToken)
         {
             var users = await QueryAsync(user => user.Email == email && user.PasswordHash == hash, null, cancellationToken);
-            return users.SingleOrDefault();
+            return users.Single();
 		}
     }
 }

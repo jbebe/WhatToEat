@@ -14,20 +14,22 @@ public class SessionService
 
 	public User? User { get; set; } = default!;
 	
-	private UserRepository UserRepository { get; }
-
-	private LocalEventService LocalEventService { get; }
+	public bool IsLoggedIn => User != null;
+	
+	UserRepository UserRepository { get; }
 
     ILocalStorageService LocalStorage { get; }
 
-    public bool IsLoggedIn => User != null;
+    LocalEventService LocalEventService { get; }
+
+	public event Action? OnLoggedIn;
+
 
 	public SessionService(
 		UserRepository userRepository,
 		LocalEventService localEventService,
         ILocalStorageService localStorage
     ){
-		Console.WriteLine($"{nameof(SessionService)} initialized");
 		UserRepository = userRepository;
 		LocalEventService = localEventService;
 		LocalStorage = localStorage;
@@ -35,12 +37,13 @@ public class SessionService
 
     public async Task<bool> TryAutoLoginAsync(CancellationToken cancellationToken)
     {
-		var credentials = await LocalStorage.GetItemAsync<Credentials>(CredentialsKey);
+		var credentials = await LocalStorage.GetItemAsync<Credentials>(CredentialsKey, cancellationToken);
 		if (!new[] { credentials?.Email, credentials?.PasswordHash }.Any(string.IsNullOrWhiteSpace))
 		{
             User = await UserRepository.GetAsync(credentials!.Email, credentials.PasswordHash, cancellationToken);
             LocalEventService.Send<LoggedIn>();
-        }
+			OnLoggedIn?.Invoke();
+		}
         
         return User != null;
     }
@@ -48,9 +51,10 @@ public class SessionService
     public async Task<bool> LoginAsync(LoginForm form, CancellationToken cancellationToken)
 	{
 		var hash = ModelHelpers.GetPasswordHash(form.Password);
-        await LocalStorage.SetItemAsync(CredentialsKey, new Credentials(form.Email, hash));
+        await LocalStorage.SetItemAsync(CredentialsKey, new Credentials(form.Email, hash), cancellationToken);
         User = await UserRepository.GetAsync(form.Email, hash, cancellationToken);
 		LocalEventService.Send<LoggedIn>();
+		OnLoggedIn?.Invoke();
 
 		return User != null;
 	}

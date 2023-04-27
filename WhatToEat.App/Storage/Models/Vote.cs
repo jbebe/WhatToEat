@@ -9,7 +9,7 @@ public class Vote : IEntityTypeConfiguration<Vote>
 {
 	public DateTime Date { get; set; }
 
-	public string UserId { get; protected set; } = default!;
+	public string UserId { get; set; } = default!;
 
     public User User { get; set; } = default!;
 

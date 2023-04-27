@@ -1,12 +1,13 @@
-﻿@using System.ComponentModel.DataAnnotations;
-@using Blazored.LocalStorage;
-@using WhatToEat.App.Services;
-@using WhatToEat.App.Services.Models;
-@using WhatToEat.App.Storage.Model;
-@using WhatToEat.App.Storage.Repositories;
+﻿@using System.ComponentModel.DataAnnotations
+@using Blazored.LocalStorage
+@using WhatToEat.App.Services
+@using WhatToEat.App.Services.Models
+@using WhatToEat.App.Storage.Model
+@using WhatToEat.App.Storage.Repositories
+@inherits BaseComponent
 
 <EditForm Model="@Model" OnValidSubmit="OnValidSubmit">
-	<MudDialog IsVisible="true">
+	<MudDialog @bind-IsVisible="IsVisible">
 		<DialogContent>
 			<DataAnnotationsValidator />
 			<MudGrid>
@@ -34,15 +35,14 @@
 	[Inject]
 	SessionService SessionService { get; set; } = default!;
 
-	[Inject]
-	CancellationToken CancellationToken { get; set; }
+	bool IsVisible { get; set; }
 
     LoginForm Model = new("", "");
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await SessionService.TryAutoLoginAsync(CancellationToken);
-    }
+		IsVisible = await SessionService.TryAutoLoginAsync(CancellationToken);
+	}
 
     private void OnValidSubmit(EditContext context)
     {

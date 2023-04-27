@@ -11,7 +11,7 @@ namespace WhatToEat.App.Storage.Repositories
 		{
 			var vote = new Vote { 
 				Date = DateTime.UtcNow.Date,
-				User = user,
+				UserId = user.Id,
 				Restaurants = restaurants,
             };
 			await CreateOrUpdateAsync(vote, x => x.UserId == vote.UserId && x.Date == vote.Date, x =>

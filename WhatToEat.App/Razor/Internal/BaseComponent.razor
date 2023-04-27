@@ -1,0 +1,20 @@
+﻿@implements IDisposable
+
+@code
+{
+    private CancellationTokenSource TokenSource { get; }
+
+    protected CancellationToken CancellationToken { get; }
+
+    public BaseComponent()
+    {
+        TokenSource = new CancellationTokenSource();
+        CancellationToken = TokenSource.Token;
+    }
+
+    public void Dispose()
+    {
+        TokenSource.Cancel();
+        TokenSource.Dispose();
+    }
+}

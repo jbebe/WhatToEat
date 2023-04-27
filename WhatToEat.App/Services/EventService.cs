@@ -13,10 +13,4 @@ public abstract class EventService
 
 public class GlobalEventService: EventService { }
 
-public class LocalEventService : EventService 
-{
-    public LocalEventService()
-    {
-        Console.WriteLine($"{nameof(LocalEventService)} initialized");
-    }
-}
+public class LocalEventService : EventService { }

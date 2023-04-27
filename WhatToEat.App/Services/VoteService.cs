@@ -27,8 +27,6 @@ public sealed class VoteService : AsyncServiceBase
 	  GlobalEventService globalEventService,
 	  LocalEventService localEventService)
 	{
-		Console.WriteLine($"{nameof(VoteService)} initialized");
-
 		SessionService = sessionService;
 		VoteRepository = voteRepository;
 		GlobalEventService = globalEventService;

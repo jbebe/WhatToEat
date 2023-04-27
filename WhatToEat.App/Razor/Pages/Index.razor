@@ -3,6 +3,7 @@
 @using WhatToEat.App.Services.Models
 @using WhatToEat.App.Storage.Model
 @using WhatToEat.App.Storage.Repositories
+@implements IDisposable
 
 <PageTitle>What To Eat</PageTitle>
 
@@ -19,17 +20,42 @@
 		</MudItem>
 	</MudGrid>
 } 
-else
-{
-	<LoginModal />
-}
+
+<LoginModal />
 
 @code {
 	[Inject]
-	SessionService SessionService { get; set; } = default!;
+    NavigationManager NavigationManager { get; set; } = default!;
+
+    [Inject]
+    LocalEventService LocalEventService { get; set; } = default!;
+
+    [Inject]
+    VoteService VoteService { get; set; } = default!;
+
+    [Inject]
+    SessionService SessionService { get; set; } = default!;
+
+    [Inject]
+    RestaurantService RestaurantService { get; set; } = default!;
 
 	protected override void OnInitialized()
 	{
-		
+		LocalEventService.OnMessage -= OnMessage;
+		LocalEventService.OnMessage += OnMessage;
+	}
+
+	Task OnMessage(BroadcastMessage message)
+	{
+		if (message.Type == BroadcastEventType.LoggedIn)
+		{
+			InvokeAsync(StateHasChanged);
+		}
+		return Task.CompletedTask;
+	}
+
+	public void Dispose()
+	{
+		LocalEventService.OnMessage -= OnMessage;
 	}
 }
