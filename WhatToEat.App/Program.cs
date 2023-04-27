@@ -28,12 +28,16 @@ builder.Services.AddSingleton(serviceProvider =>
 
 // Storage services
 builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<RestaurantService>();
 builder.Services.AddScoped<RestaurantRepository>();
 builder.Services.AddScoped<VoteRepository>();
 
+// Internal services
+builder.Services.AddScoped<CancellationService>();
+builder.Services.Add(new ServiceDescriptor(typeof(CancellationToken), (services) => services.GetRequiredService<CancellationService>()!.CancellationToken, ServiceLifetime.Scoped));
+
 // Business logic services
 builder.Services.AddScoped<LocalEventService>();
+builder.Services.AddScoped<RestaurantService>();
 builder.Services.AddScoped<VoteService>();
 builder.Services.AddScoped<SessionService>();
 

@@ -1,4 +1,4 @@
-﻿@inherits BaseComponent
+﻿@using WhatToEat.App.Services
 
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
@@ -17,8 +17,15 @@
     [Inject]
     NavigationManager NavigationManager { get; set; } = default!;
 
-    protected override void OnInitialized()
-    {
-        Console.WriteLine($">>> Url: {NavigationManager.Uri}");
-    }
+    [Inject]
+    LocalEventService LocalEventService { get; set; } = default!;
+
+    [Inject]
+    VoteService VoteService { get; set; } = default!;
+
+    [Inject]
+    SessionService SessionService { get; set; } = default!;
+
+    [Inject]
+    RestaurantService RestaurantService { get; set; } = default!;
 }

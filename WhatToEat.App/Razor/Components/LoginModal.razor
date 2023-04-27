@@ -1,0 +1,53 @@
+﻿@using System.ComponentModel.DataAnnotations;
+@using Blazored.LocalStorage;
+@using WhatToEat.App.Services;
+@using WhatToEat.App.Services.Models;
+@using WhatToEat.App.Storage.Model;
+@using WhatToEat.App.Storage.Repositories;
+
+<EditForm Model="@Model" OnValidSubmit="OnValidSubmit">
+	<MudDialog IsVisible="true">
+		<DialogContent>
+			<DataAnnotationsValidator />
+			<MudGrid>
+				<MudItem>
+					<MudCard>
+						<MudCardContent>
+							<MudTextField Label="Email" Class="mt-3"
+										  @bind-Value="Model.Email" For="@(() => Model.Email)" />
+							<MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
+										  @bind-Value="Model.Password" For="@(() => Model.Password)" InputType="InputType.Password" />
+						</MudCardContent>
+					</MudCard>
+				</MudItem>
+			</MudGrid>
+
+		</DialogContent>
+		<DialogActions>
+			<MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled"
+					   Color="Color.Primary" Class="ml-auto">Login</MudButton>
+		</DialogActions>
+	</MudDialog>
+</EditForm>
+
+@code {
+	[Inject]
+	SessionService SessionService { get; set; } = default!;
+
+	[Inject]
+	CancellationToken CancellationToken { get; set; }
+
+    LoginForm Model = new("", "");
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await SessionService.TryAutoLoginAsync(CancellationToken);
+    }
+
+    private void OnValidSubmit(EditContext context)
+    {
+#pragma warning disable CS4014
+        SessionService.LoginAsync(Model, CancellationToken);
+#pragma warning restore CS4014
+    }
+}

@@ -1,9 +1,8 @@
 ﻿@page "/"
-@using WhatToEat.App.Services;
-@using WhatToEat.App.Services.Models;
-@using WhatToEat.App.Storage.Model;
-@using WhatToEat.App.Storage.Repositories;
-@inherits BaseComponent;
+@using WhatToEat.App.Services
+@using WhatToEat.App.Services.Models
+@using WhatToEat.App.Storage.Model
+@using WhatToEat.App.Storage.Repositories
 
 <PageTitle>What To Eat</PageTitle>
 
@@ -19,26 +18,18 @@
 			Statistics
 		</MudItem>
 	</MudGrid>
+} 
+else
+{
+	<LoginModal />
 }
 
 @code {
 	[Inject]
 	SessionService SessionService { get; set; } = default!;
 
-	[Inject]
-	NavigationManager NavManager { get; set; } = default!;
-
-	[Inject]
-	GlobalEventService GlobalEventService { get; set; } = default!;
-
-	[Inject]
-	LocalEventService LocalEventService { get; set; } = default!;
-
-	protected override void OnAfterRender(bool firstRender)
+	protected override void OnInitialized()
 	{
-		if (!SessionService.IsLoggedIn)
-		{
-			NavManager.NavigateTo("/login");
-		}
+		
 	}
 }

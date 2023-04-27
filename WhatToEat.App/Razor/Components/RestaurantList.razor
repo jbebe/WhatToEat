@@ -1,10 +1,10 @@
-﻿@using WhatToEat.App.Common;
-@using WhatToEat.App.Razor.Internal;
-@using WhatToEat.App.Services;
-@using WhatToEat.App.Storage.Dtos;
-@using WhatToEat.App.Storage.Model;
-@using WhatToEat.App.Storage.Repositories;
-@inherits BaseComponent;
+﻿@using WhatToEat.App.Common
+@using WhatToEat.App.Razor.Internal
+@using WhatToEat.App.Services
+@using WhatToEat.App.Storage.Dtos
+@using WhatToEat.App.Storage.Model
+@using WhatToEat.App.Storage.Repositories
+@implements IDisposable
 
 <MudText Typo="Typo.h5" Class="mb-4">Restaurants</MudText>
 
@@ -67,13 +67,12 @@
 		if (Loading) return;
 
 #pragma warning disable CS4014
-		VoteService.CastVoteAsync(selectedItems.ToList(), CancellationToken);
+		VoteService.CastVoteAsync(selectedItems.ToList(), CancellationToken.None);
 #pragma warning restore CS4014
 	}
 
-	public new void Dispose()
+	public void Dispose()
 	{
 		RestaurantService.OnChanged -= UpdateRestaurantsAsync;
-		base.Dispose();
 	}
 }

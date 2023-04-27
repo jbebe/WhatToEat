@@ -26,8 +26,8 @@ public class SessionService
 		UserRepository userRepository,
 		LocalEventService localEventService,
         ILocalStorageService localStorage
-    )
-	{
+    ){
+		Console.WriteLine($"{nameof(SessionService)} initialized");
 		UserRepository = userRepository;
 		LocalEventService = localEventService;
 		LocalStorage = localStorage;

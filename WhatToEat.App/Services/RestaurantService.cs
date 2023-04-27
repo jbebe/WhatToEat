@@ -24,7 +24,8 @@ public sealed class RestaurantService: AsyncServiceBase
 	  LocalEventService localEventService,
 	  RestaurantRepository restaurantRepository)
 	{
-		GlobalEventService = globalEventService;
+        Console.WriteLine($"{nameof(RestaurantService)} initialized");
+        GlobalEventService = globalEventService;
 		LocalEventService = localEventService;
 		RestaurantRepository = restaurantRepository;
 		GlobalEventService.OnMessage -= OnMessageAsync;

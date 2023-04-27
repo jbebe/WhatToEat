@@ -27,6 +27,8 @@ public sealed class VoteService : AsyncServiceBase
 	  GlobalEventService globalEventService,
 	  LocalEventService localEventService)
 	{
+		Console.WriteLine($"{nameof(VoteService)} initialized");
+
 		SessionService = sessionService;
 		VoteRepository = voteRepository;
 		GlobalEventService = globalEventService;
@@ -57,8 +59,8 @@ public sealed class VoteService : AsyncServiceBase
     private IQueryable<Vote> AddIncludes(DbSet<Vote> dbSet)
     {
 		return dbSet
-			/*.Include(x => x.Restaurants)
-			.Include(x => x.User)*/;
+			.Include(x => x.Restaurants)
+			.Include(x => x.User);
     }
 
     public async Task CastVoteAsync(List<Restaurant> restaurants, CancellationToken cancellationToken)

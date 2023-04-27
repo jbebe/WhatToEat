@@ -1,12 +1,12 @@
-﻿@implements IDisposable
+﻿namespace WhatToEat.App.Services;
 
-@code
+public class CancellationService: IDisposable
 {
     private CancellationTokenSource TokenSource { get; }
 
-    protected CancellationToken CancellationToken { get; }
+    public CancellationToken CancellationToken { get; }
 
-    public BaseComponent()
+    public CancellationService()
     {
         TokenSource = new CancellationTokenSource();
         CancellationToken = TokenSource.Token;

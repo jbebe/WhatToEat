@@ -1,10 +1,10 @@
-﻿@using WhatToEat.App.Common;
-@using WhatToEat.App.Server;
-@using WhatToEat.App.Services.Models;
-@using WhatToEat.App.Services;
-@using WhatToEat.App.Storage.Model;
-@using WhatToEat.App.Storage.Repositories;
-@inherits BaseComponent;
+﻿@using WhatToEat.App.Common
+@using WhatToEat.App.Server
+@using WhatToEat.App.Services.Models
+@using WhatToEat.App.Services
+@using WhatToEat.App.Storage.Model
+@using WhatToEat.App.Storage.Repositories
+@implements IDisposable
 
 <MudContainer>
 	<MudText Typo="Typo.h5" Class="mx-2 mt-4 mb-2">Result</MudText>
@@ -82,9 +82,8 @@
 		return Task.CompletedTask;
 	}
 
-	public new void Dispose()
+	public void Dispose()
 	{
 		VoteService.OnChanged -= OnVoteChangedAsync;
-		base.Dispose();
 	}
 }

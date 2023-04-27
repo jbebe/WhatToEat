@@ -1,7 +1,6 @@
-﻿@using WhatToEat.App.Razor.Internal;
-@using WhatToEat.App.Storage.Model;
-@using WhatToEat.App.Storage.Repositories;
-@inherits BaseComponent;
+﻿@using WhatToEat.App.Razor.Internal
+@using WhatToEat.App.Storage.Model
+@using WhatToEat.App.Storage.Repositories
 
 <span class="mt-3"></span>
 
@@ -32,6 +31,6 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		Users = await UserRepository.GetAllAsync(null, CancellationToken);
+		Users = await UserRepository.GetAllAsync(null, CancellationToken.None);
 	}
 }
