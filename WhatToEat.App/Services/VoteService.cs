@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WhatToEat.App.Common;
 using WhatToEat.App.Services.Models;
 using WhatToEat.App.Storage.Model;
 using WhatToEat.App.Storage.Repositories;
@@ -7,42 +8,32 @@ namespace WhatToEat.App.Services;
 
 public sealed class VoteService : AsyncServiceBase
 {
-	private SessionService SessionService { get; set; }
-
 	private VoteRepository VoteRepository { get; set; }
 
 	private GlobalEventService GlobalEventService { get; set; }
 
-	private LocalEventService LocalEventService { get; set; }
-
 	public IReadOnlyList<Vote> Votes { get; set; } = new List<Vote>();
 
-	public Vote? Vote => Votes.FirstOrDefault(x => x.UserId == SessionService.User?.Id);
+	public Vote? GetUserVote(Id<User> userId) => Votes.FirstOrDefault(x => x.UserId == userId.Value);
 
 	public event Func<Task>? OnChanged;
 
 	public VoteService(
-	  SessionService sessionService,
 	  VoteRepository voteRepository,
-	  GlobalEventService globalEventService,
-	  LocalEventService localEventService)
+	  GlobalEventService globalEventService)
 	{
-		SessionService = sessionService;
 		VoteRepository = voteRepository;
 		GlobalEventService = globalEventService;
-		LocalEventService = localEventService;
 		GlobalEventService.OnMessage -= OnMessageAsync;
 		GlobalEventService.OnMessage += OnMessageAsync;
-		LocalEventService.OnMessage -= OnMessageAsync;
-		LocalEventService.OnMessage += OnMessageAsync;
-#pragma warning disable CS4014
-		UpdateVotesAsync();
-#pragma warning restore CS4014
+
+		// Initial vote list
+		UpdateVotesAsync().Wait();
 	}
 
 	private async Task OnMessageAsync(BroadcastMessage message)
 	{
-		if (message.Type == BroadcastEventType.VoteChanged || message.Type == BroadcastEventType.LoggedIn)
+		if (message.Type == BroadcastEventType.VoteChanged)
 		{
 			await UpdateVotesAsync();
 			OnChanged?.Invoke();
@@ -61,15 +52,14 @@ public sealed class VoteService : AsyncServiceBase
 			.Include(x => x.User);
     }
 
-    public async Task CastVoteAsync(List<Restaurant> restaurants, CancellationToken cancellationToken)
+    public async Task CastVoteAsync(Id<User> userId, List<Restaurant> restaurants, CancellationToken cancellationToken)
 	{
-		await VoteRepository.CreateOrUpdateAsync(SessionService.User!, restaurants, cancellationToken);
+		await VoteRepository.CreateOrUpdateAsync(userId, restaurants, cancellationToken);
 		GlobalEventService.Send<VoteChanged>();
 	}
 
 	public override void Dispose()
 	{
 		GlobalEventService.OnMessage -= OnMessageAsync;
-		LocalEventService.OnMessage -= OnMessageAsync;
 	}
 }

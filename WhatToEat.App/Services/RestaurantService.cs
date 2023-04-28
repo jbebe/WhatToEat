@@ -12,8 +12,6 @@ public sealed class RestaurantService: AsyncServiceBase
 
 	private GlobalEventService GlobalEventService { get; set; }
 
-	private LocalEventService LocalEventService { get; set; }
-
 	public IReadOnlyDictionary<Id<Restaurant>, Restaurant> Restaurants { get; private set; } = 
 		new Dictionary<Id<Restaurant>, Restaurant>();
 
@@ -21,21 +19,20 @@ public sealed class RestaurantService: AsyncServiceBase
 
 	public RestaurantService(
 	  GlobalEventService globalEventService,
-	  LocalEventService localEventService,
 	  RestaurantRepository restaurantRepository)
 	{
         GlobalEventService = globalEventService;
-		LocalEventService = localEventService;
 		RestaurantRepository = restaurantRepository;
 		GlobalEventService.OnMessage -= OnMessageAsync;
 		GlobalEventService.OnMessage += OnMessageAsync;
-		LocalEventService.OnMessage -= OnMessageAsync;
-		LocalEventService.OnMessage += OnMessageAsync;
+
+		// Initial restaurant list
+		UpdateRestaurantsAsync().Wait();
 	}
 
 	private async Task OnMessageAsync(BroadcastMessage message)
 	{
-		if (message.Type == BroadcastEventType.RestaurantChanged || message.Type == BroadcastEventType.LoggedIn)
+		if (message.Type == BroadcastEventType.RestaurantChanged)
 		{
 			await UpdateRestaurantsAsync();
 			OnChanged?.Invoke();
@@ -51,6 +48,5 @@ public sealed class RestaurantService: AsyncServiceBase
 	public override void Dispose()
 	{
 		GlobalEventService.OnMessage -= OnMessageAsync;
-		LocalEventService.OnMessage -= OnMessageAsync;
 	}
 }

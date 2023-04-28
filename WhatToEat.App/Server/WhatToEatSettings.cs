@@ -2,7 +2,7 @@
 
 public class WhatToEatConfiguration
 {
-    public string SQLiteConnectionString { get; set; }
+    public string SQLiteConnectionString { get; set; } = default!;
 
     public int VoteResultLimit { get; set; }
 

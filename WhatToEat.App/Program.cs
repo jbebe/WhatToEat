@@ -25,21 +25,22 @@ builder.Services.AddSingleton<StorageContext>();
 builder.Services.AddSingleton<GlobalEventService>();
 builder.Services.AddSingleton(serviceProvider => 
     serviceProvider.GetRequiredService<IConfiguration>().Get<WhatToEatSettings>()!);
-
 // Storage services
-builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<RestaurantRepository>();
-builder.Services.AddScoped<VoteRepository>();
+builder.Services.AddSingleton<UserRepository>();
+builder.Services.AddSingleton<RestaurantRepository>();
+builder.Services.AddSingleton<VoteRepository>();
+// Business logic services
+builder.Services.AddSingleton<RestaurantService>();
+builder.Services.AddSingleton<VoteService>();
+builder.Services.AddSingleton<PresenceService>();
 
 // Internal services
 builder.Services.AddScoped<CancellationService>();
-builder.Services.Add(new ServiceDescriptor(typeof(CancellationToken), (services) => services.GetRequiredService<CancellationService>()!.CancellationToken, ServiceLifetime.Scoped));
-
+builder.Services.Add(new ServiceDescriptor(
+    typeof(CancellationToken), 
+    (services) => services.GetRequiredService<CancellationService>()!.CancellationToken, ServiceLifetime.Scoped));
 // Business logic services
 builder.Services.AddScoped<LocalEventService>();
-builder.Services.AddScoped<PresenceService>();
-builder.Services.AddScoped<RestaurantService>();
-builder.Services.AddScoped<VoteService>();
 builder.Services.AddScoped<SessionService>();
 
 var app = builder.Build();

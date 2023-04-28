@@ -1,4 +1,5 @@
 ﻿@using System.Timers
+@using WhatToEat.App.Server;
 @using WhatToEat.App.Services;
 @implements IDisposable
 
@@ -16,22 +17,42 @@
 
 @code {
     [Inject]
-    protected PresenceService PresenceService { get; set; } = default!;
+    PresenceService PresenceService { get; set; } = default!;
+
+    [Inject]
+    WhatToEatSettings Settings { get; set; } = default!;
+
+    [Inject]
+    SessionService SessionService { get; set; } = default!;
+
+    System.Timers.Timer Timer { get; set; } = default!;
 
     protected override void OnInitialized()
     {
         PresenceService.OnPresenceChanged -= OnPresenceChanged;
         PresenceService.OnPresenceChanged += OnPresenceChanged;
+
+        Timer = new(TimeSpan.FromSeconds(Settings.Configuration.PresencePollSec).TotalMilliseconds);
+        Timer.Elapsed -= RemotePresenceUpdater;
+        Timer.Elapsed += RemotePresenceUpdater;
+        Timer.Start();
+    }
+
+    private void RemotePresenceUpdater(object? sender, ElapsedEventArgs e)
+    {
+        PresenceService.UpdatePresence(SessionService.User!.IdTyped);
     }
 
     void OnPresenceChanged()
     {
-        Console.WriteLine("On presence changed, update online users");
         InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
     {
+        Timer.Stop();
+        Timer.Close();
+        Timer.Dispose();
         PresenceService.OnPresenceChanged -= OnPresenceChanged;
     }
 }
