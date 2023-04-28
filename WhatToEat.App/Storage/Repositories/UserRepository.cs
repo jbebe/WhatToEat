@@ -13,7 +13,7 @@ namespace WhatToEat.App.Storage.Repositories
         public async Task<User> CreateAsync(CreateUser createUser, CancellationToken cancellationToken)
         {
             var user = new User { 
-                Id = new Id<User>(),
+                Id = new Id<User>().Value,
                 Name = createUser.Name,
                 Email = createUser.Email,
                 PasswordHash = ModelHelpers.GetPasswordHash(createUser.Password),

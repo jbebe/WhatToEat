@@ -3,7 +3,7 @@
 @using WhatToEat.App.Services.Models
 @using WhatToEat.App.Storage.Model
 @using WhatToEat.App.Storage.Repositories
-@implements IDisposable
+@inherits BaseComponent
 
 <PageTitle>What To Eat</PageTitle>
 
@@ -15,7 +15,7 @@
 		</MudItem>
 		<MudItem xs="12" sm="6" md="6">
 			<VoteResult />
-			Presence list
+			<PresenceList />
 			Statistics
 		</MudItem>
 	</MudGrid>
@@ -25,19 +25,22 @@
 
 @code {
 	[Inject]
-    NavigationManager NavigationManager { get; set; } = default!;
+	NavigationManager NavigationManager { get; set; } = default!;
 
-    [Inject]
-    LocalEventService LocalEventService { get; set; } = default!;
+	[Inject]
+	LocalEventService LocalEventService { get; set; } = default!;
 
-    [Inject]
-    VoteService VoteService { get; set; } = default!;
+	[Inject]
+	VoteService VoteService { get; set; } = default!;
 
-    [Inject]
-    SessionService SessionService { get; set; } = default!;
+	[Inject]
+	SessionService SessionService { get; set; } = default!;
 
-    [Inject]
-    RestaurantService RestaurantService { get; set; } = default!;
+	[Inject]
+	RestaurantService RestaurantService { get; set; } = default!;
+	
+	[Inject]
+	PresenceService PresenceService { get; set; } = default!;
 
 	protected override void OnInitialized()
 	{
@@ -54,8 +57,9 @@
 		return Task.CompletedTask;
 	}
 
-	public void Dispose()
+	public new void Dispose()
 	{
 		LocalEventService.OnMessage -= OnMessage;
+		base.Dispose();
 	}
 }

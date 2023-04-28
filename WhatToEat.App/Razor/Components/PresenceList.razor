@@ -1,0 +1,37 @@
+﻿@using System.Timers
+@using WhatToEat.App.Services;
+@implements IDisposable
+
+<MudContainer>
+    <MudText Typo="Typo.h5" Class="ml-2 mt-4 mb-2">Online users</MudText>
+    <MudList Class="pt-0">
+        @foreach (var user in PresenceService.OnlineUsers)
+        {
+            <MudPaper Class="my-2 px-3">
+                <MudListItem Class="pa-0" Text="@(user.Name)" />
+            </MudPaper>
+        }
+    </MudList>
+</MudContainer>
+
+@code {
+    [Inject]
+    protected PresenceService PresenceService { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        PresenceService.OnPresenceChanged -= OnPresenceChanged;
+        PresenceService.OnPresenceChanged += OnPresenceChanged;
+    }
+
+    void OnPresenceChanged()
+    {
+        Console.WriteLine("On presence changed, update online users");
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        PresenceService.OnPresenceChanged -= OnPresenceChanged;
+    }
+}

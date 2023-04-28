@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace WhatToEat.App.Common;
 
-public class Id<T>: IEquatable<Id<T>>
+public class Id<T>
 {
 	public string Value { get; set; }
 
@@ -12,19 +12,11 @@ public class Id<T>: IEquatable<Id<T>>
 		Value = value ?? ModelHelpers.GenerateId();
 	}
 
-    public override int GetHashCode() => Value.GetHashCode();
-
 	public override string ToString() => $"Id<{typeof(T).Name}>({Value})";
 
-    public override bool Equals(object? obj) => obj is string str && Value == str;
+	public override int GetHashCode() => Value.GetHashCode();
 
-	public bool Equals(Id<T>? other) => other?.Value == Value;
-
-    public static implicit operator string(Id<T> id)
-			=> id.Value;
-
-	public static implicit operator Id<T>(string value)
-		=> new(value);
+    public override bool Equals(object? obj) => obj is Id<T> id && Value == id.Value;
 }
 
 public class JsonIdConverter<T> : JsonConverter<Id<T>>

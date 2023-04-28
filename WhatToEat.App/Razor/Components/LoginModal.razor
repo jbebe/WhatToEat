@@ -6,9 +6,9 @@
 @using WhatToEat.App.Storage.Repositories
 @inherits BaseComponent
 
-<EditForm Model="@Model" OnValidSubmit="OnValidSubmit">
-	<MudDialog @bind-IsVisible="IsVisible">
-		<DialogContent>
+<MudDialog @bind-IsVisible="IsVisible">
+	<DialogContent>
+		<EditForm Model="@Model" OnValidSubmit="OnValidSubmit">
 			<DataAnnotationsValidator />
 			<MudGrid>
 				<MudItem>
@@ -19,35 +19,50 @@
 							<MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
 										  @bind-Value="Model.Password" For="@(() => Model.Password)" InputType="InputType.Password" />
 						</MudCardContent>
+						<MudCardActions>
+							<MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled"
+									   Color="Color.Primary" Class="ml-auto">Login</MudButton>
+						</MudCardActions>
 					</MudCard>
 				</MudItem>
 			</MudGrid>
-
-		</DialogContent>
-		<DialogActions>
-			<MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled"
-					   Color="Color.Primary" Class="ml-auto">Login</MudButton>
-		</DialogActions>
-	</MudDialog>
-</EditForm>
+		</EditForm>
+	</DialogContent>
+</MudDialog>
 
 @code {
 	[Inject]
 	SessionService SessionService { get; set; } = default!;
 
-	bool IsVisible { get; set; }
+	bool IsVisible { get; set; } = false;
 
-    LoginForm Model = new("", "");
+	LoginForm Model = new("", "");
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-		IsVisible = await SessionService.TryAutoLoginAsync(CancellationToken);
+	protected override async Task OnAfterRenderAsync(bool first)
+	{
+		if (!SessionService.IsLoggedIn && !IsVisible && !await SessionService.TryAutoLoginAsync(CancellationToken))
+		{
+			IsVisible = true;
+			StateHasChanged();
+		}
 	}
 
-    private void OnValidSubmit(EditContext context)
-    {
+
+	private void OnValidSubmit(EditContext context)
+	{
+		async Task OnValidSubmitAsync()
+		{
+			var success = await SessionService.LoginAsync(Model, CancellationToken);
+			if (success)
+			{
+				IsVisible = false;
+				await InvokeAsync(StateHasChanged);
+			}
+		}
+
 #pragma warning disable CS4014
-        SessionService.LoginAsync(Model, CancellationToken);
+		OnValidSubmitAsync();
 #pragma warning restore CS4014
-    }
+	}
+
 }

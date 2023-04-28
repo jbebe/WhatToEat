@@ -22,16 +22,17 @@ public class SessionService
 
     LocalEventService LocalEventService { get; }
 
-	public event Action? OnLoggedIn;
-
+	GlobalEventService GlobalEventService { get; }
 
 	public SessionService(
 		UserRepository userRepository,
 		LocalEventService localEventService,
+		GlobalEventService globalEventService,
         ILocalStorageService localStorage
     ){
 		UserRepository = userRepository;
 		LocalEventService = localEventService;
+		GlobalEventService = globalEventService;
 		LocalStorage = localStorage;
     }
 
@@ -42,7 +43,7 @@ public class SessionService
 		{
             User = await UserRepository.GetAsync(credentials!.Email, credentials.PasswordHash, cancellationToken);
             LocalEventService.Send<LoggedIn>();
-			OnLoggedIn?.Invoke();
+			GlobalEventService.Send(new PresenceChanged(User.IdTyped));
 		}
         
         return User != null;
@@ -54,7 +55,7 @@ public class SessionService
         await LocalStorage.SetItemAsync(CredentialsKey, new Credentials(form.Email, hash), cancellationToken);
         User = await UserRepository.GetAsync(form.Email, hash, cancellationToken);
 		LocalEventService.Send<LoggedIn>();
-		OnLoggedIn?.Invoke();
+		GlobalEventService.Send(new PresenceChanged(User.IdTyped));
 
 		return User != null;
 	}

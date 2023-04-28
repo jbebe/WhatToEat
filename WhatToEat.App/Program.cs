@@ -37,6 +37,7 @@ builder.Services.Add(new ServiceDescriptor(typeof(CancellationToken), (services)
 
 // Business logic services
 builder.Services.AddScoped<LocalEventService>();
+builder.Services.AddScoped<PresenceService>();
 builder.Services.AddScoped<RestaurantService>();
 builder.Services.AddScoped<VoteService>();
 builder.Services.AddScoped<SessionService>();

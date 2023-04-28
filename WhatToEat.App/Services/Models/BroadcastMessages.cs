@@ -1,4 +1,7 @@
-﻿namespace WhatToEat.App.Services.Models;
+﻿using WhatToEat.App.Common;
+using WhatToEat.App.Storage.Model;
+
+namespace WhatToEat.App.Services.Models;
 
 public enum BroadcastEventType
 {
@@ -12,7 +15,7 @@ public record BroadcastMessage(BroadcastEventType Type);
 
 public record VoteChanged() : BroadcastMessage(BroadcastEventType.VoteChanged);
 
-public record PresenceChanged(string UserId) : BroadcastMessage(BroadcastEventType.PresenceChanged);
+public record PresenceChanged(Id<User> UserId) : BroadcastMessage(BroadcastEventType.PresenceChanged);
 
 public record RestaurantChanged() : BroadcastMessage(BroadcastEventType.RestaurantChanged);
 

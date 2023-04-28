@@ -1,4 +1,5 @@
 ﻿@using WhatToEat.App.Razor.Internal
+@using WhatToEat.App.Services;
 @using WhatToEat.App.Storage.Model
 @using WhatToEat.App.Storage.Repositories
 
@@ -20,17 +21,26 @@
 </MudPaper>
 
 @code {
-	List<User> Users { get; set; } = new();
+	IEnumerable<User> Members => PresenceService.Users.Values.Where(x => !x.Admin);
 
-	IEnumerable<User> Members => Users.Where(x => !x.Admin);
-
-	IEnumerable<User> Admins => Users.Where(x => x.Admin);
+	IEnumerable<User> Admins => PresenceService.Users.Values.Where(x => x.Admin);
 
 	[Inject]
-	UserRepository UserRepository { get; set; } = default!;
+	protected PresenceService PresenceService { get; set; } = default!;
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
-		Users = await UserRepository.GetAllAsync(null, CancellationToken.None);
+		PresenceService.OnPresenceChanged -= OnPresenceChanged;
+		PresenceService.OnPresenceChanged += OnPresenceChanged;
+	}
+
+	void OnPresenceChanged()
+	{
+		InvokeAsync(StateHasChanged);
+	}
+
+	public void Dispose()
+	{
+		PresenceService.OnPresenceChanged -= OnPresenceChanged;
 	}
 }

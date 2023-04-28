@@ -1,9 +1,15 @@
 ﻿namespace WhatToEat.App.Server;
 
-public record WhatToEatConfiguration(
-    string SQLiteConnectionString,
-	int VoteResultLimit
-);
+public class WhatToEatConfiguration
+{
+    public string SQLiteConnectionString { get; set; }
+
+    public int VoteResultLimit { get; set; }
+
+    public int PresencePollSec { get; set; }
+
+    public int PresenceTimeoutSec { get; set; }
+}
 
 public class WhatToEatSettings
 {

@@ -70,7 +70,7 @@
 			.ToDictionary(x => x.Key) // join ids by comma, create count => id list
 			.OrderByDescending(x => x.Key) // order key-pairs by count descending
 			.Take(Settings.Configuration.VoteResultLimit) // select the N most voted restaurant
-			.Select((x, i) => (i, x.Key, x.Value.Select(y => RestaurantService.Restaurants[y]).ToList())) // Get restaurant object for every id
+			.Select((x, i) => (i, x.Key, x.Value.Select(y => RestaurantService.Restaurants[new Id<Restaurant>(y)]).ToList())) // Get restaurant object for every id
 			.ToList();
 	}
 
