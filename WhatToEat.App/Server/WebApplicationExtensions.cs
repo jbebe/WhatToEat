@@ -30,11 +30,14 @@ namespace WhatToEat.App.Server
             var restaurantA = await restaurantRepo.CreateAsync("Restaurant A", new[] { PaymentMethod.Cash }, ct);
             var restaurantB = await restaurantRepo.CreateAsync("Restaurant B", new[] { PaymentMethod.Cash, PaymentMethod.BankCard }, ct);
             var restaurantC = await restaurantRepo.CreateAsync("Restaurant C", new[] { PaymentMethod.Cash, PaymentMethod.BankCard, PaymentMethod.SzepCard }, ct);
+            var restaurantD = await restaurantRepo.CreateAsync("Restaurant D", new[] { PaymentMethod.BankCard }, ct);
 
             // Create votes
             var voteRepo = scope.ServiceProvider.GetRequiredService<VoteRepository>();
             await voteRepo.CreateOrUpdateAsync(userA.IdTyped, new List<Restaurant>{ restaurantA }, ct);
-            await voteRepo.CreateOrUpdateAsync(userB.IdTyped, new List<Restaurant> { restaurantA, restaurantB }, ct);
+            await voteRepo.CreateOrUpdateAsync(userB.IdTyped, new List<Restaurant> { restaurantA }, ct);
+            await voteRepo.CreateOrUpdateAsync(userA.IdTyped, new List<Restaurant> { restaurantB }, ct, DateTime.UtcNow.AddDays(-1).Date);
+            await voteRepo.CreateOrUpdateAsync(userB.IdTyped, new List<Restaurant> { restaurantB }, ct, DateTime.UtcNow.AddDays(-1).Date);
         }
     }
 }

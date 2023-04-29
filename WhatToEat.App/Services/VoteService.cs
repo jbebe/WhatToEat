@@ -42,7 +42,8 @@ public sealed class VoteService : AsyncServiceBase
 
 	private async Task UpdateVotesAsync()
 	{
-		Votes = await VoteRepository.GetAllAsync(AddIncludes, CancellationToken.None);
+		var now = DateTime.UtcNow;
+		Votes = await VoteRepository.QueryAsync(vote => vote.Date == now, AddIncludes);
 	}
 
     private IQueryable<Vote> AddIncludes(DbSet<Vote> dbSet)

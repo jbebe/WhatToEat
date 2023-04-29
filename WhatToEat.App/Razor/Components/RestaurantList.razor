@@ -49,7 +49,7 @@
 	private Task UpdateRestaurantsAsync()
 	{
 		SelectedItems = new HashSet<Restaurant>(
-			VoteService.GetUserVote(SessionService.User!.IdTyped)!.Restaurants.ToHashSet() 
+			VoteService.GetUserVote(SessionService.User!.IdTyped)?.Restaurants.ToHashSet() 
 			?? new());
 		InvokeAsync(StateHasChanged);
 		return Task.CompletedTask;

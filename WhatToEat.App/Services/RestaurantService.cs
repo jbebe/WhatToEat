@@ -45,6 +45,16 @@ public sealed class RestaurantService: AsyncServiceBase
 		Restaurants = restaurantList.ToImmutableDictionary(x => x.IdTyped);
 	}
 
+	public async Task CreateRestaurantAsync(RestaurantForm form)
+	{
+		var paymentMethods = new List<PaymentMethod>();
+		if (form.CashPayment) paymentMethods.Add(PaymentMethod.Cash);
+		if (form.BankCardPayment) paymentMethods.Add(PaymentMethod.BankCard);
+		if (form.SzepCardPayment) paymentMethods.Add(PaymentMethod.SzepCard);
+		await RestaurantRepository.CreateAsync(form.Name, paymentMethods);
+		GlobalEventService.Send<RestaurantChanged>();
+	}
+
 	public override void Dispose()
 	{
 		GlobalEventService.OnMessage -= OnMessageAsync;

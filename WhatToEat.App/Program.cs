@@ -1,5 +1,5 @@
 using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components.Server.Circuits;
+using MudBlazor;
 using MudBlazor.Services;
 using WhatToEat.App.Server;
 using WhatToEat.App.Services;
@@ -14,7 +14,10 @@ builder.Services.AddRazorPages(opts =>
     opts.RootDirectory = "/Razor/Internal";
 });
 builder.Services.AddServerSideBlazor();
-builder.Services.AddMudServices();
+builder.Services.AddMudServices(config =>
+{
+	config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
+});
 builder.Services.AddBlazoredLocalStorage();
 
 // Load configurations

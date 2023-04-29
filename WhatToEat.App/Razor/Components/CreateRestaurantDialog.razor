@@ -1,0 +1,45 @@
+﻿@using WhatToEat.App.Services.Models;
+@using WhatToEat.App.Storage.Model;
+<MudDialog>
+    <DialogContent>
+        <EditForm Model="@Model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+            <MudGrid>
+                <MudItem>
+                    <MudCard>
+                        <MudCardContent>
+                            <MudTextField Label="Name" Class="mt-3"
+                                          @bind-Value="Model.Name" For="@(() => Model.Name)" />
+                            <MudCheckBox @bind-Checked="Model.CashPayment" For="@(() => Model.CashPayment)" Label="Cash" />
+                            <MudCheckBox @bind-Checked="Model.BankCardPayment" For="@(() => Model.BankCardPayment)" Label="BankCardPayment" />
+                            <MudCheckBox @bind-Checked="Model.SzepCardPayment" For="@(() => Model.SzepCardPayment)" Label="SzepCardPayment" />
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled"
+                                       Color="Color.Primary" Class="ml-auto">Login</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>
+        </EditForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [Inject]
+    ISnackbar Snackbar { get; set; } = default!;
+
+    RestaurantForm Model = new RestaurantForm { Name = "", CashPayment = false, BankCardPayment = false, SzepCardPayment = false };
+
+    public bool FormSuccess { get; set; }
+
+    public bool CheckboxSuccess { get; set; }
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
+
+    void OnValidSubmit(EditContext context)
+    {
+        Snackbar.Add("Restaurant created", Severity.Success);
+        MudDialog.Close(DialogResult.Ok(Model));
+    }
+}

@@ -1,0 +1,85 @@
+﻿@using Microsoft.EntityFrameworkCore;
+@using WhatToEat.App.Services;
+@using WhatToEat.App.Storage.Model;
+@using WhatToEat.App.Storage.Repositories;
+<MudContainer>
+    <MudText Typo="Typo.h5" Class="ml-2 mt-4 mb-2">Statistics</MudText>
+    <MudList Class="pt-0">
+        <MudPaper Class="my-2 px-3">
+            <div class="pt-1">
+                <MudText Typo="Typo.button">Your top 3 favorite</MudText>
+                @foreach (var (pair, index) in MyFavoriteRestaurants.Where((_, idx) => idx < 3).Select((p, idx) => (p, idx)))
+                {
+                    <MudListItem Class="pa-0">
+                        @RenderTrophy(index) @(pair.Restaurant.Name)
+                    </MudListItem>
+                }
+                @if (MyFavoriteRestaurants.Count == 0)
+                {
+                    <MudListItem Class="pa-0">No data</MudListItem>
+                }
+            </div>
+            <MudDivider Class="mt-1" />
+            <div class="pt-1">
+                <MudText Typo="Typo.button" Class="mt-1">Global top 3</MudText>
+                @foreach (var (pair, index) in RestaurantPopularity.Where((_, idx) => idx < 3).Select((p, idx) => (p, idx)))
+                {
+                    <MudListItem Class="pa-0">
+                        @RenderTrophy(index) @(pair.Restaurant.Name)
+                    </MudListItem>
+                }
+                @if (RestaurantPopularity.Count > 3)
+                {
+                    <MudListItem Class="pa-0">
+                        💩 @(WorstRestaurant.Restaurant.Name)
+                    </MudListItem>
+                }
+            </div>
+        </MudPaper>
+    </MudList>
+</MudContainer>
+
+@code {
+    protected List<(Restaurant Restaurant, int Count)> RestaurantPopularity { get; set; } = new();
+
+    protected List<(Restaurant Restaurant, int Count)> MyFavoriteRestaurants { get; set; } = new();
+
+    protected (Restaurant Restaurant, int Count) WorstRestaurant => RestaurantPopularity.LastOrDefault();
+
+    [Inject]
+    VoteRepository VoteRepository { get; set; } = default!;
+
+    [Inject]
+    RestaurantService RestaurantService { get; set; } = default!;
+
+    [Inject]
+    SessionService SessionService { get; set; } = default!;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var restaurants = RestaurantService.Restaurants.Values.OrderBy(x => x.Name).ToList();
+        var votes = await VoteRepository.GetAllAsync(dbSet => dbSet.Include(x => x.Restaurants).Include(x => x.User));
+        List<(Restaurant Restaurant, int Count)> GetRestaurantRankings(string? userId = null) =>
+          votes
+          .Select(x => (x.UserId, x.Restaurants)) // select userid -> restaurants pairs
+          .Where(x => userId != null ? x.UserId == userId : true) // filter for userid if personal rank is needed
+          .SelectMany(x => x.Restaurants) // for every user, flatmap the restaurants
+          .GroupBy(restaurant => restaurant.Id) // group by restaurant id
+          .Select((group) => (group.First(), group.Count())) // map groups into restaurant -> count pairs
+          .OrderByDescending(x => x.Item2)
+          .ToList();
+        MyFavoriteRestaurants = GetRestaurantRankings(SessionService.User!.Id);
+        RestaurantPopularity = GetRestaurantRankings();
+    }
+
+    protected string RenderTrophy(int index)
+    {
+        switch (index)
+        {
+            case 0: return "🏆";
+            case 1: return "🥈";
+            case 2: return "🥉";
+            default: return "";
+        }
+    }
+}

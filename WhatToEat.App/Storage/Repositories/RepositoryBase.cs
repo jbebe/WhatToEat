@@ -15,9 +15,10 @@ namespace WhatToEat.App.Storage.Repositories
 			DbSet = new Lazy<DbSet<T>>(() => Context.GetDbSet<T>());
 		}
 
-		protected async Task CreateOrUpdateAsync(T entity, Expression<Func<T, bool>> compare, Action<T>? update, CancellationToken cancellationToken)
+		protected async Task CreateOrUpdateAsync(T entity, Expression<Func<T, bool>> compare, Action<T>? update, CancellationToken? cancellationToken = null)
 		{
-			var foundEntity = await DbSet.Value.FirstOrDefaultAsync(compare, cancellationToken);
+			cancellationToken ??= CancellationToken.None;
+			var foundEntity = await DbSet.Value.FirstOrDefaultAsync(compare, cancellationToken.Value);
 			if (foundEntity != null)
 			{
 				update?.Invoke(foundEntity);
@@ -28,7 +29,7 @@ namespace WhatToEat.App.Storage.Repositories
 				DbSet.Value.Add(entity);
 			}
 
-			await Context.SaveChangesAsync(cancellationToken);
+			await Context.SaveChangesAsync(cancellationToken.Value);
 		}
 
         public async Task<List<T>> GetAllAsync(
@@ -36,8 +37,8 @@ namespace WhatToEat.App.Storage.Repositories
             CancellationToken? cancellationToken = null) =>
 			await QueryAsync(whereExpression: null, addIncludes, cancellationToken);
 
-        protected async Task<List<T>> QueryAsync(
-			Expression<Func<T, bool>>? whereExpression = null, 
+        public async Task<List<T>> QueryAsync(
+			Expression<Func<T, bool>>? whereExpression = null,
 			Func<DbSet<T>, IQueryable<T>>? addIncludes = null,
 			CancellationToken? cancellationToken = null)
 		{
@@ -49,5 +50,16 @@ namespace WhatToEat.App.Storage.Repositories
 				: query;
 			return await query.ToListAsync(cancellationToken ?? CancellationToken.None);
 		}
-	}
+
+        public async Task<T?> GetAsync(
+            Expression<Func<T, bool>> whereExpression,
+            Func<DbSet<T>, IQueryable<T>>? addIncludes = null,
+            CancellationToken? cancellationToken = null)
+        {
+            var query = addIncludes != null
+                ? addIncludes(DbSet.Value)
+                : DbSet.Value;
+			return await query.FirstOrDefaultAsync(whereExpression, cancellationToken ?? CancellationToken.None);
+        }
+    }
 }

@@ -50,9 +50,7 @@
 
     public void Dispose()
     {
-        Timer.Stop();
-        Timer.Close();
-        Timer.Dispose();
         PresenceService.OnPresenceChanged -= OnPresenceChanged;
+        Timer.Stop();
     }
 }

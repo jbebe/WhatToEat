@@ -1,0 +1,45 @@
+﻿@using WhatToEat.App.Services;
+@using WhatToEat.App.Services.Models;
+
+<MudAppBar>
+    <MudText Typo="Typo.h5" Class="ml-3">What to eat? / @Name / @(DateTime.UtcNow.DayOfWeek)</MudText>
+    <MudSpacer />
+        <MudButton Variant="Variant.Text" OnClick="@(e => DrawerOpen = !DrawerOpen)" Color="Color.Inherit">
+            <MudIcon Icon="@Icons.Material.Filled.Person" Color="Color.Inherit" Class="mr-2" />
+            Settings
+        </MudButton>
+</MudAppBar>
+<MudDrawer @bind-Open="@DrawerOpen" Anchor="Anchor.Right" ClipMode="DrawerClipMode.Docked">
+    <TeamSettings />
+</MudDrawer>
+
+@code {
+    [Inject]
+    protected RestaurantService RestaurantService { get; set; } = default!;
+
+    [Inject]
+    protected SessionService SessionService { get; set; } = default!;
+
+    [Inject]
+    protected LocalEventService LocalEventService { get; set; } = default!;
+
+    bool DrawerOpen { get; set; }
+
+    string? Name { get; set; }
+
+    protected override void OnInitialized()
+    {
+        LocalEventService.OnMessage -= UpdateName;
+        LocalEventService.OnMessage += UpdateName;
+    }
+
+    protected Task UpdateName(BroadcastMessage message)
+    {
+        if (message.Type == BroadcastEventType.LoggedIn)
+        {
+            Name = SessionService.User?.Name;
+            InvokeAsync(StateHasChanged);
+        }
+        return Task.CompletedTask;
+    }
+}

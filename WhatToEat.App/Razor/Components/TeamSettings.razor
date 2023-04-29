@@ -1,5 +1,6 @@
 ﻿@using WhatToEat.App.Razor.Internal
 @using WhatToEat.App.Services;
+@using WhatToEat.App.Services.Models;
 @using WhatToEat.App.Storage.Model
 @using WhatToEat.App.Storage.Repositories
 
@@ -20,13 +21,25 @@
 	</MudList>
 </MudPaper>
 
+<MudButton 
+	Class="m-3" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Restaurant"
+	Color="Color.Primary" OnClick="OpenCreateRestaurantDialogAsync">
+	New Restaurant
+</MudButton>
+
 @code {
+	[Inject]
+	IDialogService DialogService { get; set; } = default!;
+
 	IEnumerable<User> Members => PresenceService.Users.Values.Where(x => !x.Admin);
 
 	IEnumerable<User> Admins => PresenceService.Users.Values.Where(x => x.Admin);
 
 	[Inject]
 	protected PresenceService PresenceService { get; set; } = default!;
+
+	[Inject]
+	protected RestaurantService RestaurantService { get; set; } = default!;
 
 	protected override void OnInitialized()
 	{
@@ -42,5 +55,12 @@
 	public void Dispose()
 	{
 		PresenceService.OnPresenceChanged -= OnPresenceChanged;
+	}
+
+	public async Task OpenCreateRestaurantDialogAsync()
+	{
+		var dialog = DialogService.Show<CreateRestaurantDialog>("New restaurant");
+		var formData = (await dialog.Result).Data as RestaurantForm;
+		await RestaurantService.CreateRestaurantAsync(formData);
 	}
 }
