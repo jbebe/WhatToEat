@@ -27,10 +27,10 @@ namespace WhatToEat.App.Server
 
             // Create restaurants
             var restaurantRepo = scope.ServiceProvider.GetRequiredService<RestaurantRepository>();
-            var restaurantA = await restaurantRepo.CreateAsync("Restaurant A", new[] { PaymentMethod.Cash }, ct);
-            var restaurantB = await restaurantRepo.CreateAsync("Restaurant B", new[] { PaymentMethod.Cash, PaymentMethod.BankCard }, ct);
-            var restaurantC = await restaurantRepo.CreateAsync("Restaurant C", new[] { PaymentMethod.Cash, PaymentMethod.BankCard, PaymentMethod.SzepCard }, ct);
-            var restaurantD = await restaurantRepo.CreateAsync("Restaurant D", new[] { PaymentMethod.BankCard }, ct);
+            var restaurantA = await restaurantRepo.CreateAsync("Restaurant A", new[] { PaymentMethod.Cash }, new[] { ConsumptionType.DineIn, ConsumptionType.Takeaway }, ct);
+            var restaurantB = await restaurantRepo.CreateAsync("Restaurant B", new[] { PaymentMethod.Cash, PaymentMethod.BankCard }, new[] { ConsumptionType.DineIn, ConsumptionType.Takeaway, ConsumptionType.Delivery }, ct);
+            var restaurantC = await restaurantRepo.CreateAsync("Restaurant C", new[] { PaymentMethod.Cash, PaymentMethod.BankCard, PaymentMethod.SzepCard }, new[] { ConsumptionType.Delivery }, ct);
+            var restaurantD = await restaurantRepo.CreateAsync("Restaurant D", new[] { PaymentMethod.BankCard }, new[] { ConsumptionType.Takeaway, ConsumptionType.Delivery }, ct);
 
             // Create votes
             var voteRepo = scope.ServiceProvider.GetRequiredService<VoteRepository>();

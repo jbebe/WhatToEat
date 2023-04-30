@@ -7,12 +7,13 @@ namespace WhatToEat.App.Storage.Repositories
 	{
 		public RestaurantRepository(StorageContext context): base(context) { }
 
-		public async Task<Restaurant> CreateAsync(string name, IEnumerable<PaymentMethod> paymentMethods, CancellationToken? cancellationToken = null)
+		public async Task<Restaurant> CreateAsync(string name, IEnumerable<PaymentMethod> paymentMethods, IEnumerable<ConsumptionType> consumptionTypes, CancellationToken? cancellationToken = null)
 		{
 			var restaurant = new Restaurant { 
 				Id = new Id<Restaurant>().Value,
 				Name = name,
-				PaymentMethods = paymentMethods.ToList()
+				PaymentMethods = paymentMethods.ToList(),
+				ConsumptionTypes = consumptionTypes.ToList(),
 			};
 			await CreateOrUpdateAsync(restaurant, x => x.Id == restaurant.Id, null, cancellationToken ?? CancellationToken.None);
 

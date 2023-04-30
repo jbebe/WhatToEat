@@ -11,12 +11,15 @@
                             <MudTextField Label="Name" Class="mt-3"
                                           @bind-Value="Model.Name" For="@(() => Model.Name)" />
                             <MudCheckBox @bind-Checked="Model.CashPayment" For="@(() => Model.CashPayment)" Label="Cash" />
-                            <MudCheckBox @bind-Checked="Model.BankCardPayment" For="@(() => Model.BankCardPayment)" Label="BankCardPayment" />
-                            <MudCheckBox @bind-Checked="Model.SzepCardPayment" For="@(() => Model.SzepCardPayment)" Label="SzepCardPayment" />
+                            <MudCheckBox @bind-Checked="Model.BankCardPayment" For="@(() => Model.BankCardPayment)" Label="Bank card" />
+                            <MudCheckBox @bind-Checked="Model.SzepCardPayment" For="@(() => Model.SzepCardPayment)" Label="SZÉP card" />
+                            <MudToggleIconButton @bind-Toggled="Model.DineIn" Color="@Color.Default" ToggledColor="@Color.Primary" Icon="@Icons.Material.Filled.LocalDining" ToggledIcon="@Icons.Material.Filled.LocalDining" Title="Dine-in" />
+                            <MudToggleIconButton @bind-Toggled="Model.Takeaway" Color="@Color.Default" ToggledColor="@Color.Primary" Icon="@Icons.Material.Filled.TakeoutDining" ToggledIcon="@Icons.Material.Filled.TakeoutDining" Title="Takeaway" />
+                            <MudToggleIconButton @bind-Toggled="Model.Delivery" Color="@Color.Default" ToggledColor="@Color.Primary" Icon="@Icons.Material.Filled.DeliveryDining" ToggledIcon="@Icons.Material.Filled.DeliveryDining" Title="Delivery" />
                         </MudCardContent>
                         <MudCardActions>
                             <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled"
-                                       Color="Color.Primary" Class="ml-auto">Login</MudButton>
+                                       Color="Color.Primary" Class="ml-auto">Create</MudButton>
                         </MudCardActions>
                     </MudCard>
                 </MudItem>
@@ -29,7 +32,7 @@
     [Inject]
     ISnackbar Snackbar { get; set; } = default!;
 
-    RestaurantForm Model = new RestaurantForm { Name = "", CashPayment = false, BankCardPayment = false, SzepCardPayment = false };
+    RestaurantForm Model = new RestaurantForm { Name = "", CashPayment = false, BankCardPayment = false, SzepCardPayment = false, DineIn = false, Takeaway = false, Delivery = false };
 
     public bool FormSuccess { get; set; }
 

@@ -15,10 +15,13 @@ public class Restaurant : SingleKeyedEntityBase<Restaurant>, IEntityTypeConfigur
 
     public List<PaymentMethod> PaymentMethods { get; set; } = default!;
 
+    public List<ConsumptionType> ConsumptionTypes { get; set; } = default!;
+
 	public List<Vote> Votes { get; set; } = default!;
 
     public void Configure(EntityTypeBuilder<Restaurant> builder)
     {
 		builder.Property(p => p.PaymentMethods).AddConverter();
+		builder.Property(p => p.ConsumptionTypes).AddConverter();
     }
 }

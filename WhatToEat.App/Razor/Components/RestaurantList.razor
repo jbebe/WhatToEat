@@ -14,11 +14,15 @@
 	<HeaderContent>
 		<MudTh>Name</MudTh>
 		<MudTh>Payment method</MudTh>
+		<MudTh>Options</MudTh>
 	</HeaderContent>
 	<RowTemplate>
 		<MudTd DataLabel="Name">@context.Name</MudTd>
 		<MudTd DataLabel="PaymentMethod">
 			<PaymentMethodList Value="@context.PaymentMethods" />
+		</MudTd>
+		<MudTd DataLabel="ConsumptionType">
+			<ConsumptionTypeList Value="@context.ConsumptionTypes" />
 		</MudTd>
 	</RowTemplate>
 </MudTable>

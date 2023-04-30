@@ -51,7 +51,11 @@ public sealed class RestaurantService: AsyncServiceBase
 		if (form.CashPayment) paymentMethods.Add(PaymentMethod.Cash);
 		if (form.BankCardPayment) paymentMethods.Add(PaymentMethod.BankCard);
 		if (form.SzepCardPayment) paymentMethods.Add(PaymentMethod.SzepCard);
-		await RestaurantRepository.CreateAsync(form.Name, paymentMethods);
+		var consumptionTypes = new List<ConsumptionType>();
+		if (form.DineIn) consumptionTypes.Add(ConsumptionType.DineIn);
+		if (form.Takeaway) consumptionTypes.Add(ConsumptionType.Takeaway);
+		if (form.Delivery) consumptionTypes.Add(ConsumptionType.Delivery);
+		await RestaurantRepository.CreateAsync(form.Name, paymentMethods, consumptionTypes);
 		GlobalEventService.Send<RestaurantChanged>();
 	}
 
