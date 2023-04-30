@@ -11,4 +11,10 @@ public class RestaurantForm
     public bool BankCardPayment { get; set; }
 
     public bool SzepCardPayment { get; set; }
+
+    public bool DineIn { get; set; }
+
+    public bool Takeaway { get; set; }
+
+    public bool Delivery { get; set; }
 }

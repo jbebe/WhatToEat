@@ -1,0 +1,23 @@
+﻿@using WhatToEat.App.Common
+@foreach (var type in Value)
+{
+    <MudTooltip Text="@(type.GetDisplayName())">
+	@if (type == ConsumptionType.DineIn)
+	{
+		<MudIcon Icon="@Icons.Material.Filled.LocalDining" Size="Size.Small" />
+	}
+	@if (type == ConsumptionType.Takeaway)
+    {
+	    <MudIcon Icon="@Icons.Material.Filled.TakeoutDining" Size="Size.Small" />
+    }
+	@if (type == ConsumptionType.Delivery)
+    {
+	    <MudIcon Icon="@Icons.Material.Filled.DeliveryDining" Size="Size.Small" />
+    }
+    </MudTooltip>
+}
+
+@code {
+    [Parameter]
+    public List<ConsumptionType> Value { get; set; } = default!;
+}
