@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy dotnet core project to Azure Function App - wtefunctions
+name: Build and deploy Node.js project to Azure Function App - wtefunctions
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
 
 env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
-  DOTNET_VERSION: '6.0.x' # set this to the dotnet version to use
+  NODE_VERSION: '18.x' # set this to the node version to use (supports 8.x, 10.x, 12.x)
 
 jobs:
   build-and-deploy:
@@ -20,16 +20,18 @@ jobs:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@v4
 
-      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
-        uses: actions/setup-dotnet@v1
+      - name: Setup Node ${{ env.NODE_VERSION }} Environment
+        uses: actions/setup-node@v3
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
 
-      - name: 'Resolve Project Dependencies Using Dotnet'
+      - name: 'Resolve Project Dependencies Using Npm'
         shell: bash
         run: |
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet build --configuration Release --output ./output
+          npm install
+          npm run build --if-present
+          npm run test --if-present
           popd
 
       - name: 'Run Azure Functions Action'
@@ -38,5 +40,5 @@ jobs:
         with:
           app-name: 'wtefunctions'
           slot-name: 'Production'
-          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_67962191A97847FCA9D1A8655850BE54 }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_756F216AD4234746A35A0A6C39BA580E }}
