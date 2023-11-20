@@ -1,0 +1,9 @@
+.container {
+  padding: 5px;
+  border: 1px solid lightgray;
+
+  > h4:first-child {
+    margin: 0;
+    border-bottom: inherit;
+  }
+}
