@@ -41,4 +41,4 @@ jobs:
           app-name: 'wtefunctions'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_756F216AD4234746A35A0A6C39BA580E }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_520B6E362F2D4BFEADEE0B7130AA3C51 }}
