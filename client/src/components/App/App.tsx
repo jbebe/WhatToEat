@@ -14,12 +14,12 @@ export default function App() {
       <div className={styles.container}>
         <div>Hello Bálint! Today is wednesday.</div>
         <div className={styles.content}>
-          <RestaurantModal />
           <RestaurantList />
           <div>
             <Results />
             <Presence />
             <Statistics />
+            <RestaurantModal />
           </div>
         </div>
       </div>

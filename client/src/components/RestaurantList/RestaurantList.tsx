@@ -28,11 +28,11 @@ export default function RestaurantList() {
               {row.url ? <a href={row.url}>{row.name}</a> : row.name}
               {Object.entries(row.delivery ?? {}).map(([_, url]) => {
                 return (
-                  <>
+                  <React.Fragment key={url}>
                     <a href={url}>
                       <img src="#" />
                     </a>
-                  </>
+                  </React.Fragment>
                 )
               })}
             </>
