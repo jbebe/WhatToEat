@@ -1,4 +1,4 @@
-import Card from "../../shared/Card/Card"
+import Card from '../../shared/Card/Card'
 
 export default function Results() {
   return (

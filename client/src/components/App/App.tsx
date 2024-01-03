@@ -9,7 +9,6 @@ import RestaurantModal from '../RestaurantModal/RestaurantModal'
 const queryClient = new QueryClient()
 
 export default function App() {
-
   return (
     <QueryClientProvider client={queryClient}>
       <div className={styles.container}>

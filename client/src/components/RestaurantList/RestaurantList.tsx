@@ -19,26 +19,45 @@ export default function RestaurantList() {
   const columns = React.useMemo<ColumnDef<Restaurant>[]>(
     () => [
       {
-        header: 'Name', accessorKey: 'name', cell: info => {
-          const row = info.row.original;
-          return <>
-            {row.url ? <a href={row.url}>{row.name}</a> : row.name}
-            {Object.entries(row.delivery ?? {}).map(([_, url]) => {
-              return <>
-                <a href={url}><img src='#' /></a>
-              </>
-            })}
-          </>
-        }
+        header: 'Name',
+        accessorKey: 'name',
+        cell: (info) => {
+          const row = info.row.original
+          return (
+            <>
+              {row.url ? <a href={row.url}>{row.name}</a> : row.name}
+              {Object.entries(row.delivery ?? {}).map(([_, url]) => {
+                return (
+                  <>
+                    <a href={url}>
+                      <img src="#" />
+                    </a>
+                  </>
+                )
+              })}
+            </>
+          )
+        },
       },
       {
-        header: 'Distance', accessorKey: 'distance', cell: info => {
-          const dist = info.getValue() as (number | undefined);
+        header: 'Distance',
+        accessorKey: 'distance',
+        cell: (info) => {
+          const dist = info.getValue() as number | undefined
           if (!dist) return '-'
-          return dist >= 1 ? `${Math.round(dist)} km` : `${Math.round(dist * 1000)} m `
-        }
+          return dist >= 1
+            ? `${Math.round(dist)} km`
+            : `${Math.round(dist * 1000)} m `
+        },
       },
-      { header: 'Action', cell: _ => <><button>Go</button> <button>Order</button></> },
+      {
+        header: 'Action',
+        cell: (_) => (
+          <>
+            <button>Go</button> <button>Order</button>
+          </>
+        ),
+      },
     ],
     []
   )
@@ -55,14 +74,14 @@ export default function RestaurantList() {
     debugTable: true,
   })
 
-  if (!isSuccess) return <div>Failed to load restaurants</div>;
+  if (!isSuccess) return <div>Failed to load restaurants</div>
 
   return (
     <table className={styles.table}>
       <thead>
-        {table.getHeaderGroups().map(headerGroup => (
+        {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
-            {headerGroup.headers.map(header => {
+            {headerGroup.headers.map((header) => {
               return (
                 <th key={header.id} colSpan={header.colSpan}>
                   {header.isPlaceholder ? null : (
@@ -91,25 +110,19 @@ export default function RestaurantList() {
         ))}
       </thead>
       <tbody>
-        {table
-          .getRowModel()
-          .rows
-          .map(row => {
-            return (
-              <tr key={row.id}>
-                {row.getVisibleCells().map(cell => {
-                  return (
-                    <td key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </td>
-                  )
-                })}
-              </tr>
-            )
-          })}
+        {table.getRowModel().rows.map((row) => {
+          return (
+            <tr key={row.id}>
+              {row.getVisibleCells().map((cell) => {
+                return (
+                  <td key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                )
+              })}
+            </tr>
+          )
+        })}
       </tbody>
     </table>
   )

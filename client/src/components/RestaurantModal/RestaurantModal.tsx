@@ -7,12 +7,19 @@ export default function RestaurantModal() {
   }
   return (
     <form onSubmit={onSubmit}>
-      <input name="name" /><br />
-      <input name="url" type="url" /><br />
+      <input name="name" />
+      <br />
+      <input name="url" type="url" />
+      <br />
       {Object.entries(DeliveryServiceType).map(([key, value]) => {
-        return <>
-          <label>{key}: <input name={value} type="url" /></label><br />
-        </>
+        return (
+          <>
+            <label>
+              {key}: <input name={value} type="url" />
+            </label>
+            <br />
+          </>
+        )
       })}
       <button>Create Restaurant</button>
     </form>
