@@ -1,15 +1,24 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { app, HttpRequest, InvocationContext } from "@azure/functions"
+import { GetTableInput } from "../utils/table"
+import { VoteEntity } from "../entities/VoteEntity"
 
-export async function listVotes(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
-
-    const name = request.query.get('name') || await request.text() || 'world';
-
-    return { body: `Hello, ${name}!` };
-};
+const tableInput = GetTableInput('vote', { 
+    filter: "(RowKey ge '{date}' and RowKey lt '{date}z')"
+ })
 
 app.http('listVotes', {
-    methods: ['GET', 'POST'],
-    authLevel: 'anonymous',
-    handler: listVotes
-});
+    trigger: {
+        authLevel: 'anonymous',
+        methods: ['GET'],
+        route: 'vote/{date}',
+        name: 'listVotes',
+        type: 'httpTrigger',
+    },
+    handler(request: HttpRequest, context: InvocationContext)
+    {
+        const votes = (context.extraInputs.get(tableInput) as VoteEntity[])
+            .map(x => JSON.parse(x.ClientData as any))
+        return ({ jsonBody: votes })
+    },
+    extraInputs: [tableInput]
+})

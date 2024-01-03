@@ -1,15 +1,22 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { app, HttpRequest, InvocationContext } from "@azure/functions"
+import { GetTableInput } from "../utils/table"
+import { RestaurantEntity } from "../entities/RestaurantEntity"
 
-export async function listRestaurants(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
-
-    const name = request.query.get('name') || await request.text() || 'world';
-
-    return { body: `Hello, ${name}!` };
-};
+const tableInput = GetTableInput('restaurant')
 
 app.http('listRestaurants', {
-    methods: ['GET', 'POST'],
-    authLevel: 'anonymous',
-    handler: listRestaurants
-});
+    trigger: {
+        authLevel: 'anonymous',
+        methods: ['GET'],
+        route: 'restaurant',
+        name: 'listRestaurants',
+        type: 'httpTrigger',
+    },
+    handler(request: HttpRequest, context: InvocationContext)
+    {
+        const restaurants = (context.extraInputs.get(tableInput) as RestaurantEntity[])
+            .map(x => JSON.parse(x.ClientData as any))
+        return ({ jsonBody: restaurants })
+    },
+    extraInputs: [tableInput]
+})
