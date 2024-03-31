@@ -1,1 +1,0 @@
-export const createId = () => Math.random().toString(26).slice(2);
